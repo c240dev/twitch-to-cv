@@ -153,8 +153,8 @@ class TwitchToCVBot {
             return true;
         }
         
-        // Routing commands: output → lzx_variable
-        const routingMatch = message.match(/^([a-z0-9#.]+)\\s*→\\s*([a-z0-9#.]+)$/i);
+        // Routing commands: output → lzx_variable OR output to lzx_variable
+        const routingMatch = message.match(/^([a-z0-9#.]+)\s*(?:→|to)\s*([a-z0-9#.]+)$/i);
         if (routingMatch) {
             const [, output, lzxVariable] = routingMatch;
             

@@ -168,8 +168,34 @@ class Config {
             throw new Error(`Invalid Expert Sleepers output: ${output}`);
         }
         
+        // Validate LZX variable format (without value)
+        if (!this.validateLZXVariableForRouting(lzxVariable)) {
+            throw new Error(`Invalid LZX variable format: ${lzxVariable}`);
+        }
+        
         this.routingTable.set(output, lzxVariable);
         this.saveRoutingTable();
+    }
+    
+    validateLZXVariableForRouting(variable) {
+        // Match format: moduleName#instanceIndex.parameter (no value)
+        const match = variable.match(/^([a-z0-9]+)#(\d+)\.([a-zA-Z0-9#]+)$/);
+        if (!match) return false;
+        
+        const [, moduleName, instance, parameter] = match;
+        
+        // Check if module exists
+        const baseVariable = `${moduleName}.${parameter}`;
+        if (!this.lzxVariables.has(baseVariable)) {
+            // Check if this is a module without CV that can use inputJack
+            if (this.modulesWithoutCV && this.modulesWithoutCV.has(moduleName)) {
+                // Allow inputJack notation for modules without CV
+                return parameter.startsWith('inputjack#');
+            }
+            return false;
+        }
+        
+        return true;
     }
     
     removeRoute(output) {

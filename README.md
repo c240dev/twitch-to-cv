@@ -81,7 +81,9 @@ overlay off         # Disable overlay display
 **Routing Management:**
 ```
 es9out#1 → doorway#1.threshold              # Route ES-9 output 1 to doorway threshold
+es9out#5 to doorway#3.threshold             # Alternative "to" format
 esx8cv#2.out#5 → topogram#1.gain            # Route ESX-8CV unit 2, output 5 to topogram gain
+esx8cv#1.out#3 to contour#2.filter2         # Alternative "to" format
 remove es9out#1                             # Remove routing for ES-9 output 1
 routes                                      # List all current routes
 ```
