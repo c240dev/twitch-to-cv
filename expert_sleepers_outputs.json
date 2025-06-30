@@ -1,0 +1,42 @@
+{
+  "es9_outputs": [
+    "es9out#1",
+    "es9out#2", 
+    "es9out#3",
+    "es9out#4",
+    "es9out#5",
+    "es9out#6",
+    "es9out#7",
+    "es9out#8"
+  ],
+  "esx8cv_outputs": [
+    "esx8cv#1.out#1", "esx8cv#1.out#2", "esx8cv#1.out#3", "esx8cv#1.out#4",
+    "esx8cv#1.out#5", "esx8cv#1.out#6", "esx8cv#1.out#7", "esx8cv#1.out#8",
+    "esx8cv#2.out#1", "esx8cv#2.out#2", "esx8cv#2.out#3", "esx8cv#2.out#4",
+    "esx8cv#2.out#5", "esx8cv#2.out#6", "esx8cv#2.out#7", "esx8cv#2.out#8",
+    "esx8cv#3.out#1", "esx8cv#3.out#2", "esx8cv#3.out#3", "esx8cv#3.out#4",
+    "esx8cv#3.out#5", "esx8cv#3.out#6", "esx8cv#3.out#7", "esx8cv#3.out#8",
+    "esx8cv#4.out#1", "esx8cv#4.out#2", "esx8cv#4.out#3", "esx8cv#4.out#4",
+    "esx8cv#4.out#5", "esx8cv#4.out#6", "esx8cv#4.out#7", "esx8cv#4.out#8",
+    "esx8cv#5.out#1", "esx8cv#5.out#2", "esx8cv#5.out#3", "esx8cv#5.out#4",
+    "esx8cv#5.out#5", "esx8cv#5.out#6", "esx8cv#5.out#7", "esx8cv#5.out#8",
+    "esx8cv#6.out#1", "esx8cv#6.out#2", "esx8cv#6.out#3", "esx8cv#6.out#4",
+    "esx8cv#6.out#5", "esx8cv#6.out#6", "esx8cv#6.out#7", "esx8cv#6.out#8"
+  ],
+  "es5_gate_outputs": [
+    "es5gate#1",
+    "es5gate#2",
+    "es5gate#3",
+    "es5gate#4",
+    "es5gate#5",
+    "es5gate#6",
+    "es5gate#7",
+    "es5gate#8"
+  ],
+  "total_cv_outputs": 56,
+  "breakdown": {
+    "es9": 8,
+    "esx8cv": 48,
+    "es5_gates": 8
+  }
+}

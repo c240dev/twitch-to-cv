@@ -1,0 +1,163 @@
+{
+  "expedition_orion_series": {
+    "visualcortex": [
+      "keyer",
+      "colorizer", 
+      "trigger",
+      "compositor"
+    ],
+    "doorway": [
+      "threshold",
+      "gain",
+      "background",
+      "foreground"
+    ],
+    "navigator": [
+      "x",
+      "y", 
+      "rotation",
+      "reset"
+    ],
+    "passage": [
+      "thru#1",
+      "thru#2", 
+      "thru#3"
+    ],
+    "staircase": [
+      "frequency",
+      "phase"
+    ],
+    "bridge": [
+      "crossfade"
+    ],
+    "shapechanger": [
+      "ratio",
+      "size",
+      "curve", 
+      "skew"
+    ],
+    "prismaticray": [
+      "pedestal",
+      "frequency",
+      "multiply",
+      "sync"
+    ],
+    "topogram": [
+      "lower",
+      "gain",
+      "upper"
+    ],
+    "curtain": [
+      "width",
+      "depth"
+    ],
+    "polarfringe": [
+      "diameter",
+      "x",
+      "y",
+      "fringe"
+    ],
+    "pendulum": [
+      "cross"
+    ],
+    "marbleindex": [
+      "opacityA",
+      "opacityB"
+    ]
+  },
+  "orion_series": {
+    "diver": [
+      "wave",
+      "hPhase",
+      "vPhase", 
+      "trigger"
+    ],
+    "memorypalace": [
+      "write",
+      "read",
+      "address",
+      "feedback"
+    ]
+  },
+  "legacy_experimental": {
+    "eschersketch": [
+      "sync",
+      "midi"
+    ]
+  },
+  "gen3_modules": {
+    "dwo3": [
+      "freqExpA",
+      "freqExpB",
+      "freqLinA", 
+      "freqLinB",
+      "resetA",
+      "resetB"
+    ],
+    "fkg3": [
+      "threshold",
+      "softness"
+    ],
+    "tbc2": [
+      "trigger",
+      "midi"
+    ],
+    "chromagnon": [
+      "processor1",
+      "processor2",
+      "colorizer",
+      "compositor",
+      "encoder",
+      "sync"
+    ],
+    "keychain": [
+      "threshold1",
+      "threshold2",
+      "threshold3"
+    ],
+    "contour": [
+      "filter1",
+      "filter2",
+      "filter3"
+    ],
+    "factors": [
+      "cv1",
+      "cv2",
+      "cv3"
+    ],
+    "ribbons": [
+      "center",
+      "span"
+    ],
+    "scrolls": [
+      "phase1",
+      "phase2"
+    ],
+    "stairs": [
+      "steps",
+      "phase"
+    ],
+    "switcher": [
+      "selectA0",
+      "selectA1",
+      "selectB0",
+      "selectB1",
+      "disableA",
+      "disableB"
+    ]
+  },
+  "modules_without_cv": [
+    "sensorytranslator",
+    "colorchords",
+    "arch",
+    "dsg3",
+    "smx3",
+    "esg3",
+    "angles",
+    "matte",
+    "proc",
+    "stacker",
+    "sumdist",
+    "swatch"
+  ]
+}
