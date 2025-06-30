@@ -162,6 +162,9 @@ class TwitchToCVBot {
                 this.config.addRoute(output.trim(), lzxVariable.trim());
                 console.log(`👑 Admin ${username}: Added route ${output} → ${lzxVariable}`);
                 
+                // Send routing update to Max/MSP
+                this.sendRoutingUpdateToMax('add', output.trim(), lzxVariable.trim());
+                
                 this.broadcastOverlayUpdate({
                     type: 'routing_update',
                     output,
@@ -183,6 +186,9 @@ class TwitchToCVBot {
             
             if (this.config.removeRoute(output.trim())) {
                 console.log(`👑 Admin ${username}: Removed route for ${output}`);
+                
+                // Send routing removal to Max/MSP
+                this.sendRoutingUpdateToMax('remove', output.trim());
                 
                 this.broadcastOverlayUpdate({
                     type: 'routing_update',
@@ -370,6 +376,29 @@ class TwitchToCVBot {
         }
     }
     
+    sendRoutingUpdateToMax(action, output, lzxVariable = null) {
+        try {
+            if (action === 'add' && lzxVariable) {
+                // Send routing assignment to Max: /routing add output lzxVariable
+                this.maxOSCClient.send('/routing', 'add', output, lzxVariable);
+                console.log(`🎛️ Sent to Max: /routing add ${output} ${lzxVariable}`);
+            } else if (action === 'remove') {
+                // Send routing removal to Max: /routing remove output
+                this.maxOSCClient.send('/routing', 'remove', output);
+                console.log(`🎛️ Sent to Max: /routing remove ${output}`);
+            } else if (action === 'init') {
+                // Send all current routes to Max on startup
+                const routes = this.config.getAllRoutes();
+                routes.forEach(([output, lzxVar]) => {
+                    this.maxOSCClient.send('/routing', 'add', output, lzxVar);
+                });
+                console.log(`🎛️ Sent ${routes.length} existing routes to Max`);
+            }
+        } catch (error) {
+            console.error('❌ Failed to send routing update to Max:', error.message);
+        }
+    }
+    
     async start() {
         try {
             await this.twitchClient.connect();
@@ -378,6 +407,9 @@ class TwitchToCVBot {
             console.log(`👑 Admin user: ${this.config.adminUsername}`);
             console.log(`🖼️ Overlay WebSocket: ws://localhost:${this.config.overlayConfig.websocketPort}`);
             console.log(`🎛️ Max/MSP OSC: ${this.config.maxConfig.oscHost}:${this.config.maxConfig.oscPort}`);
+            
+            // Send existing routing table to Max/MSP
+            this.sendRoutingUpdateToMax('init');
             
         } catch (error) {
             console.error('❌ Failed to start bot:', error.message);
