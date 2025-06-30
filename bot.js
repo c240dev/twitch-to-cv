@@ -20,6 +20,11 @@ class TwitchToCVBot {
         // Input jack tracking for sequential validation
         this.inputJackState = new Map(); // moduleName#instance -> highest jack number used
         
+        // Rate limiting
+        this.userCooldowns = new Map(); // username -> last command time
+        this.rateLimitMs = 1000; // 1 second cooldown per user
+        this.maxActiveVariables = 100; // Prevent memory bloat
+        
         this.setupTwitchClient();
         this.setupOverlayWebSocket();
         this.setupMaxCommunication();
@@ -106,6 +111,28 @@ class TwitchToCVBot {
     handleMessage(channel, tags, message) {
         const username = tags.username;
         const isAdmin = username === this.config.adminUsername;
+        
+        // Quick message filtering - ignore obviously invalid messages
+        if (message.length < 5 || message.length > 100) return;
+        if (!message.includes('#') && !isAdmin) return;
+        
+        // Rate limiting for non-admin users
+        if (!isAdmin) {
+            const now = Date.now();
+            const lastCommand = this.userCooldowns.get(username);
+            if (lastCommand && (now - lastCommand) < this.rateLimitMs) {
+                return; // Silent rate limit
+            }
+            this.userCooldowns.set(username, now);
+            
+            // Clean old cooldowns every 1000 messages to prevent memory leak
+            if (this.userCooldowns.size > 1000) {
+                const cutoff = now - (this.rateLimitMs * 10);
+                for (const [user, time] of this.userCooldowns) {
+                    if (time < cutoff) this.userCooldowns.delete(user);
+                }
+            }
+        }
         
         const startTime = Date.now();
         
@@ -268,7 +295,27 @@ class TwitchToCVBot {
         const cvVoltage = value / 127.0;
         
         // Update active variables
-        this.activeVariables.set(fullVariable, value);
+        // Track variable with memory management
+        this.activeVariables.set(fullVariable, {
+            value,
+            cvVoltage,
+            route,
+            timestamp: Date.now(),
+            username
+        });
+        
+        // Prevent memory bloat - remove oldest entries if over limit
+        if (this.activeVariables.size > this.maxActiveVariables) {
+            let oldestKey = null;
+            let oldestTime = Date.now();
+            for (const [key, data] of this.activeVariables) {
+                if (data.timestamp < oldestTime) {
+                    oldestTime = data.timestamp;
+                    oldestKey = key;
+                }
+            }
+            if (oldestKey) this.activeVariables.delete(oldestKey);
+        }
         
         // Store last command info with dot notation details
         this.lastCommand = {
@@ -306,7 +353,7 @@ class TwitchToCVBot {
     
     sendToMax(route, cvVoltage, validated) {
         try {
-            // Send OSC message to Max/MSP with full dot notation structure
+            // Optimized: Send single compact OSC message only
             // Format: /cv [route] [voltage] [module] [instance] [parameter] [originalValue]
             this.maxOSCClient.send('/cv', 
                 route, 
@@ -317,18 +364,7 @@ class TwitchToCVBot {
                 validated.dotNotation.value
             );
             
-            // Alternative: Send structured OSC message
-            this.maxOSCClient.send('/cv/structured', {
-                route: route,
-                voltage: cvVoltage,
-                module: validated.dotNotation.module,
-                instance: validated.dotNotation.instanceIndex,
-                parameter: validated.dotNotation.cvInput,
-                value: validated.dotNotation.value,
-                fullVariable: validated.fullVariable,
-                isInputJack: validated.isInputJack,
-                timestamp: Date.now()
-            });
+            // Removed duplicate structured message to reduce network overhead
             
             // Alternative WebSocket message (if using WebSocket instead of OSC)
             /*

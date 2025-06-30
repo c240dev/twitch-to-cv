@@ -99,8 +99,18 @@ class Config {
     }
     
     validateLZXVariable(variable) {
+        // Pre-compiled regex for performance
+        if (!this._variableRegex) {
+            this._variableRegex = /^([a-z0-9]+)#(\d+)\.([a-zA-Z0-9#]+):\s*(\d+)$/;
+        }
+        
+        // Quick format check before expensive regex
+        if (!variable.includes('#') || !variable.includes('.') || !variable.includes(':')) {
+            return null;
+        }
+        
         // Parse variable format: moduleName#instance.parameter: value
-        const match = variable.match(/^([a-z0-9]+)#(\d+)\.([a-zA-Z0-9#]+):\s*(\d+)$/);
+        const match = variable.match(this._variableRegex);
         if (!match) return null;
         
         const [, moduleName, instance, parameter, value] = match;
