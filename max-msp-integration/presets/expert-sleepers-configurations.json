@@ -1,0 +1,433 @@
+{
+  "expert_sleepers_configurations": {
+    "es8_default": {
+      "device_name": "ES-8",
+      "device_type": "usb_audio",
+      "channels": 8,
+      "sample_rate": 96000,
+      "buffer_size": 64,
+      "cv_range": {
+        "type": "unipolar",
+        "min_voltage": 0.0,
+        "max_voltage": 10.0,
+        "parameter_mapping": {
+          "0": 0.0,
+          "64": 5.0,
+          "127": 10.0
+        }
+      },
+      "calibration": {
+        "zero_offset_mv": [0, 0, 0, 0, 0, 0, 0, 0],
+        "gain_correction": [1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000],
+        "last_calibrated": "2025-07-01T12:00:00Z",
+        "calibration_due": "2025-08-01T12:00:00Z"
+      },
+      "channel_mapping": {
+        "1": {"output": "es9out#1", "max_channel": 1},
+        "2": {"output": "es9out#2", "max_channel": 2},
+        "3": {"output": "es9out#3", "max_channel": 3},
+        "4": {"output": "es9out#4", "max_channel": 4},
+        "5": {"output": "es9out#5", "max_channel": 5},
+        "6": {"output": "es9out#6", "max_channel": 6},
+        "7": {"output": "es9out#7", "max_channel": 7},
+        "8": {"output": "es9out#8", "max_channel": 8}
+      },
+      "max_patch_settings": {
+        "audio_driver": "CoreAudio",
+        "device_name": "ES-8",
+        "io_vector_size": 64,
+        "signal_vector_size": 64,
+        "sample_rate": 96000,
+        "overdrive": false
+      }
+    },
+    
+    "es8_5v_range": {
+      "device_name": "ES-8",
+      "device_type": "usb_audio",
+      "channels": 8,
+      "sample_rate": 96000,
+      "buffer_size": 64,
+      "cv_range": {
+        "type": "unipolar",
+        "min_voltage": 0.0,
+        "max_voltage": 5.0,
+        "parameter_mapping": {
+          "0": 0.0,
+          "64": 2.5,
+          "127": 5.0
+        }
+      },
+      "calibration": {
+        "zero_offset_mv": [0, 0, 0, 0, 0, 0, 0, 0],
+        "gain_correction": [0.500, 0.500, 0.500, 0.500, 0.500, 0.500, 0.500, 0.500],
+        "last_calibrated": "2025-07-01T12:00:00Z",
+        "calibration_due": "2025-08-01T12:00:00Z"
+      },
+      "channel_mapping": {
+        "1": {"output": "es9out#1", "max_channel": 1},
+        "2": {"output": "es9out#2", "max_channel": 2},
+        "3": {"output": "es9out#3", "max_channel": 3},
+        "4": {"output": "es9out#4", "max_channel": 4},
+        "5": {"output": "es9out#5", "max_channel": 5},
+        "6": {"output": "es9out#6", "max_channel": 6},
+        "7": {"output": "es9out#7", "max_channel": 7},
+        "8": {"output": "es9out#8", "max_channel": 8}
+      }
+    },
+    
+    "esx8cv_single_unit": {
+      "device_name": "ESX-8CV Unit 1",
+      "device_type": "adat_expansion",
+      "channels": 8,
+      "sample_rate": 96000,
+      "buffer_size": 64,
+      "adat_input": 1,
+      "cv_range": {
+        "type": "unipolar",
+        "min_voltage": 0.0,
+        "max_voltage": 5.0,
+        "parameter_mapping": {
+          "0": 0.0,
+          "64": 2.5,
+          "127": 5.0
+        }
+      },
+      "calibration": {
+        "zero_offset_mv": [0, 0, 0, 0, 0, 0, 0, 0],
+        "gain_correction": [1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000],
+        "last_calibrated": "2025-07-01T12:00:00Z",
+        "calibration_due": "2025-08-01T12:00:00Z"
+      },
+      "channel_mapping": {
+        "1": {"output": "esx8cv#1.out#1", "max_channel": 9, "adat_channel": 1},
+        "2": {"output": "esx8cv#1.out#2", "max_channel": 10, "adat_channel": 2},
+        "3": {"output": "esx8cv#1.out#3", "max_channel": 11, "adat_channel": 3},
+        "4": {"output": "esx8cv#1.out#4", "max_channel": 12, "adat_channel": 4},
+        "5": {"output": "esx8cv#1.out#5", "max_channel": 13, "adat_channel": 5},
+        "6": {"output": "esx8cv#1.out#6", "max_channel": 14, "adat_channel": 6},
+        "7": {"output": "esx8cv#1.out#7", "max_channel": 15, "adat_channel": 7},
+        "8": {"output": "esx8cv#1.out#8", "max_channel": 16, "adat_channel": 8}
+      }
+    },
+    
+    "esx8cv_bipolar": {
+      "device_name": "ESX-8CV Bipolar",
+      "device_type": "adat_expansion",
+      "channels": 8,
+      "sample_rate": 96000,
+      "buffer_size": 64,
+      "adat_input": 1,
+      "cv_range": {
+        "type": "bipolar",
+        "min_voltage": -5.0,
+        "max_voltage": 5.0,
+        "parameter_mapping": {
+          "0": -5.0,
+          "64": 0.0,
+          "127": 5.0
+        }
+      },
+      "calibration": {
+        "zero_offset_mv": [0, 0, 0, 0, 0, 0, 0, 0],
+        "gain_correction": [1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000],
+        "center_offset_mv": [0, 0, 0, 0, 0, 0, 0, 0],
+        "last_calibrated": "2025-07-01T12:00:00Z",
+        "calibration_due": "2025-08-01T12:00:00Z"
+      },
+      "channel_mapping": {
+        "1": {"output": "esx8cv#1.out#1", "max_channel": 9, "adat_channel": 1},
+        "2": {"output": "esx8cv#1.out#2", "max_channel": 10, "adat_channel": 2},
+        "3": {"output": "esx8cv#1.out#3", "max_channel": 11, "adat_channel": 3},
+        "4": {"output": "esx8cv#1.out#4", "max_channel": 12, "adat_channel": 4},
+        "5": {"output": "esx8cv#1.out#5", "max_channel": 13, "adat_channel": 5},
+        "6": {"output": "esx8cv#1.out#6", "max_channel": 14, "adat_channel": 6},
+        "7": {"output": "esx8cv#1.out#7", "max_channel": 15, "adat_channel": 7},
+        "8": {"output": "esx8cv#1.out#8", "max_channel": 16, "adat_channel": 8}
+      }
+    },
+    
+    "esx8cv_six_unit_system": {
+      "device_name": "ESX-8CV 6-Unit System",
+      "device_type": "adat_expansion_multi",
+      "total_channels": 48,
+      "sample_rate": 96000,
+      "buffer_size": 64,
+      "units": [
+        {
+          "unit_id": 1,
+          "adat_input": 1,
+          "channels": 8,
+          "channel_offset": 0,
+          "max_channel_start": 9
+        },
+        {
+          "unit_id": 2,
+          "adat_input": 2,
+          "channels": 8,
+          "channel_offset": 8,
+          "max_channel_start": 17
+        },
+        {
+          "unit_id": 3,
+          "adat_input": 3,
+          "channels": 8,
+          "channel_offset": 16,
+          "max_channel_start": 25
+        },
+        {
+          "unit_id": 4,
+          "adat_input": 4,
+          "channels": 8,
+          "channel_offset": 24,
+          "max_channel_start": 33
+        },
+        {
+          "unit_id": 5,
+          "adat_input": 5,
+          "channels": 8,
+          "channel_offset": 32,
+          "max_channel_start": 41
+        },
+        {
+          "unit_id": 6,
+          "adat_input": 6,
+          "channels": 8,
+          "channel_offset": 40,
+          "max_channel_start": 49
+        }
+      ],
+      "cv_range": {
+        "type": "unipolar",
+        "min_voltage": 0.0,
+        "max_voltage": 5.0,
+        "parameter_mapping": {
+          "0": 0.0,
+          "64": 2.5,
+          "127": 5.0
+        }
+      },
+      "synchronization": {
+        "master_clock": "adat_1",
+        "sync_tolerance_samples": 1,
+        "sync_check_interval_ms": 1000
+      }
+    },
+    
+    "es3_default": {
+      "device_name": "ES-3",
+      "device_type": "eurorack_module",
+      "channels": 8,
+      "sample_rate": 48000,
+      "buffer_size": 128,
+      "audio_interface": {
+        "device_name": "RME UFX+",
+        "output_channels": [1, 2, 3, 4, 5, 6, 7, 8],
+        "output_level_dbfs": -6,
+        "dc_coupled": true
+      },
+      "cv_range": {
+        "type": "unipolar",
+        "min_voltage": 0.0,
+        "max_voltage": 5.0,
+        "parameter_mapping": {
+          "0": 0.0,
+          "64": 2.5,
+          "127": 5.0
+        }
+      },
+      "calibration": {
+        "zero_offset_mv": [0, 0, 0, 0, 0, 0, 0, 0],
+        "gain_correction": [1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000, 1.000],
+        "interface_scaling": 0.25,
+        "last_calibrated": "2025-07-01T12:00:00Z",
+        "calibration_due": "2025-08-01T12:00:00Z"
+      },
+      "hardware_settings": {
+        "range_switches": [5, 5, 5, 5, 5, 5, 5, 5],
+        "offset_trimmers": [2048, 2048, 2048, 2048, 2048, 2048, 2048, 2048],
+        "gain_trimmers": [2048, 2048, 2048, 2048, 2048, 2048, 2048, 2048]
+      }
+    },
+    
+    "complete_system_56_channels": {
+      "system_name": "Complete 56-Channel System",
+      "total_channels": 56,
+      "devices": [
+        {
+          "device_type": "es8",
+          "channels": 8,
+          "channel_range": [1, 8],
+          "configuration_ref": "es8_default"
+        },
+        {
+          "device_type": "esx8cv",
+          "units": 6,
+          "channels": 48,
+          "channel_range": [9, 56],
+          "configuration_ref": "esx8cv_six_unit_system"
+        }
+      ],
+      "global_settings": {
+        "sample_rate": 96000,
+        "buffer_size": 64,
+        "master_clock": "es8",
+        "sync_all_devices": true
+      },
+      "routing_table": {
+        "es9out#1": "visualcortex#1.keyer",
+        "es9out#2": "doorway#1.threshold",
+        "es9out#3": "navigator#1.x",
+        "es9out#4": "navigator#1.y",
+        "es9out#5": "shapechanger#1.ratio",
+        "es9out#6": "staircase#1.frequency",
+        "es9out#7": "bridge#1.crossfade",
+        "es9out#8": "curtain#1.width",
+        "esx8cv#1.out#1": "polarfringe#1.diameter",
+        "esx8cv#1.out#2": "polarfringe#1.x",
+        "esx8cv#1.out#3": "polarfringe#1.y",
+        "esx8cv#1.out#4": "polarfringe#1.fringe",
+        "esx8cv#1.out#5": "topogram#1.lower",
+        "esx8cv#1.out#6": "topogram#1.gain",
+        "esx8cv#1.out#7": "topogram#1.upper",
+        "esx8cv#1.out#8": "prismaticray#1.pedestal"
+      }
+    }
+  },
+  
+  "max_patch_templates": {
+    "basic_cv_output": {
+      "objects": [
+        {"type": "udpreceive", "port": 7400},
+        {"type": "osc-route", "pattern": "/cv"},
+        {"type": "unpack", "format": "s s s i"},
+        {"type": "route", "destinations": ["module", "instance", "parameter", "value"]},
+        {"type": "scale", "input_range": [0, 127], "output_range": [0.0, 1.0]},
+        {"type": "dac~", "channels": 8}
+      ],
+      "connections": [
+        {"from": "udpreceive", "to": "osc-route"},
+        {"from": "osc-route", "to": "unpack"},
+        {"from": "unpack", "to": "route"},
+        {"from": "route", "outlet": 3, "to": "scale"},
+        {"from": "scale", "to": "dac~"}
+      ]
+    },
+    
+    "validation_monitor": {
+      "objects": [
+        {"type": "live.meter~", "channels": 8},
+        {"type": "live.scope~", "channels": 1},
+        {"type": "live.numbox", "range": [0, 127]},
+        {"type": "live.slider", "range": [0, 127]},
+        {"type": "sprintf", "format": "/cv/%s/%d/%s %d"},
+        {"type": "udpsend", "host": "127.0.0.1", "port": 7401}
+      ],
+      "ui_layout": {
+        "meters": {"x": 10, "y": 10, "width": 200, "height": 100},
+        "scope": {"x": 220, "y": 10, "width": 300, "height": 200},
+        "controls": {"x": 10, "y": 120, "width": 200, "height": 80}
+      }
+    },
+    
+    "recording_system": {
+      "objects": [
+        {"type": "sfrecord~", "channels": 8},
+        {"type": "buffer~", "length": 60000},
+        {"type": "record~", "buffer": "recording_buffer"},
+        {"type": "play~", "buffer": "recording_buffer"},
+        {"type": "timer", "unit": "ms"}
+      ],
+      "file_format": {
+        "type": "wav",
+        "bit_depth": 24,
+        "sample_rate": 96000,
+        "channels": 8
+      }
+    }
+  },
+  
+  "calibration_procedures": {
+    "es8_calibration": {
+      "steps": [
+        {
+          "step": 1,
+          "description": "Zero point calibration",
+          "parameter_value": 0,
+          "expected_voltage": 0.000,
+          "tolerance_mv": 5,
+          "adjustment": "zero_offset"
+        },
+        {
+          "step": 2,
+          "description": "Full scale calibration",
+          "parameter_value": 127,
+          "expected_voltage": 10.000,
+          "tolerance_mv": 10,
+          "adjustment": "gain_correction"
+        },
+        {
+          "step": 3,
+          "description": "Linearity verification",
+          "test_points": [16, 32, 48, 64, 80, 96, 112],
+          "tolerance_mv": 10,
+          "linearity_requirement": 0.99
+        },
+        {
+          "step": 4,
+          "description": "Channel matching",
+          "test_value": 64,
+          "max_channel_difference_mv": 5,
+          "crosstalk_limit_mv": 1
+        }
+      ]
+    },
+    
+    "esx8cv_calibration": {
+      "unipolar_mode": {
+        "zero_point": {"value": 0, "voltage": 0.000, "tolerance": 2},
+        "full_scale": {"value": 127, "voltage": 5.000, "tolerance": 5},
+        "mid_point": {"value": 64, "voltage": 2.500, "tolerance": 5}
+      },
+      "bipolar_mode": {
+        "negative_full": {"value": 0, "voltage": -5.000, "tolerance": 5},
+        "zero_center": {"value": 64, "voltage": 0.000, "tolerance": 2},
+        "positive_full": {"value": 127, "voltage": 5.000, "tolerance": 5}
+      }
+    }
+  },
+  
+  "troubleshooting_guides": {
+    "no_cv_output": [
+      "Check Expert Sleepers device connection",
+      "Verify Max/MSP audio device selection",
+      "Test with internal sine wave generator",
+      "Check cable connections to modules",
+      "Verify parameter routing in bot system"
+    ],
+    
+    "incorrect_voltages": [
+      "Run calibration procedure",
+      "Check CV range settings",
+      "Verify parameter value scaling",
+      "Measure with accurate multimeter",
+      "Check for ground loops or interference"
+    ],
+    
+    "high_latency": [
+      "Reduce audio buffer size",
+      "Check network latency with ping",
+      "Increase Max/MSP scheduler priority",
+      "Verify USB/audio interface performance",
+      "Optimize Max patch for efficiency"
+    ],
+    
+    "synchronization_issues": [
+      "Check ADAT clock synchronization",
+      "Verify sample rate consistency",
+      "Test word clock connections",
+      "Monitor sync status LEDs",
+      "Check for clock jitter or drift"
+    ]
+  }
+}

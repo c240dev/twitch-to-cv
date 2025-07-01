@@ -40,3 +40,6 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+
+# Claude development logs (project-specific, not for version control)
+Claude logs/

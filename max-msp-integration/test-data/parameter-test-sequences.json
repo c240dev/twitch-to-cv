@@ -1,0 +1,529 @@
+{
+  "test_sequences": {
+    "basic_functionality": {
+      "name": "Basic Functionality Test",
+      "description": "Tests basic parameter reception and CV output",
+      "duration_ms": 30000,
+      "test_points": [
+        {
+          "timestamp_ms": 0,
+          "module": "visualcortex",
+          "instance": 1,
+          "parameter": "keyer",
+          "value": 0,
+          "expected_voltage": 0.000,
+          "tolerance_mv": 5
+        },
+        {
+          "timestamp_ms": 2000,
+          "module": "visualcortex",
+          "instance": 1,
+          "parameter": "keyer",
+          "value": 32,
+          "expected_voltage": 1.250,
+          "tolerance_mv": 10
+        },
+        {
+          "timestamp_ms": 4000,
+          "module": "visualcortex",
+          "instance": 1,
+          "parameter": "keyer",
+          "value": 64,
+          "expected_voltage": 2.500,
+          "tolerance_mv": 10
+        },
+        {
+          "timestamp_ms": 6000,
+          "module": "visualcortex",
+          "instance": 1,
+          "parameter": "keyer",
+          "value": 96,
+          "expected_voltage": 3.750,
+          "tolerance_mv": 10
+        },
+        {
+          "timestamp_ms": 8000,
+          "module": "visualcortex",
+          "instance": 1,
+          "parameter": "keyer",
+          "value": 127,
+          "expected_voltage": 5.000,
+          "tolerance_mv": 5
+        },
+        {
+          "timestamp_ms": 10000,
+          "module": "doorway",
+          "instance": 1,
+          "parameter": "threshold",
+          "value": 42,
+          "expected_voltage": 1.650,
+          "tolerance_mv": 10
+        },
+        {
+          "timestamp_ms": 12000,
+          "module": "navigator",
+          "instance": 1,
+          "parameter": "x",
+          "value": 85,
+          "expected_voltage": 3.350,
+          "tolerance_mv": 10
+        },
+        {
+          "timestamp_ms": 14000,
+          "module": "navigator",
+          "instance": 1,
+          "parameter": "y",
+          "value": 15,
+          "expected_voltage": 0.590,
+          "tolerance_mv": 10
+        }
+      ]
+    },
+    
+    "full_range_sweep": {
+      "name": "Full Range Parameter Sweep",
+      "description": "Sweeps all parameter values from 0-127",
+      "duration_ms": 127000,
+      "test_points": [
+        {
+          "timestamp_ms": 0,
+          "sweep_start": true,
+          "module": "visualcortex",
+          "instance": 1,
+          "parameter": "keyer",
+          "sweep_config": {
+            "start_value": 0,
+            "end_value": 127,
+            "step_size": 1,
+            "step_interval_ms": 1000,
+            "voltage_range": [0.000, 5.000],
+            "tolerance_mv": 10
+          }
+        }
+      ]
+    },
+    
+    "multi_channel_test": {
+      "name": "Multi-Channel Simultaneous Test",
+      "description": "Tests all 8 ES-9 channels simultaneously",
+      "duration_ms": 60000,
+      "test_points": [
+        {
+          "timestamp_ms": 0,
+          "simultaneous_channels": [
+            {
+              "module": "visualcortex",
+              "instance": 1,
+              "parameter": "keyer",
+              "value": 85,
+              "routing": "es9out#1",
+              "expected_voltage": 3.350
+            },
+            {
+              "module": "doorway",
+              "instance": 1,
+              "parameter": "threshold",
+              "value": 42,
+              "routing": "es9out#2",
+              "expected_voltage": 1.650
+            },
+            {
+              "module": "navigator",
+              "instance": 1,
+              "parameter": "x",
+              "value": 127,
+              "routing": "es9out#3",
+              "expected_voltage": 5.000
+            },
+            {
+              "module": "navigator",
+              "instance": 1,
+              "parameter": "y",
+              "value": 0,
+              "routing": "es9out#4",
+              "expected_voltage": 0.000
+            },
+            {
+              "module": "shapechanger",
+              "instance": 1,
+              "parameter": "ratio",
+              "value": 64,
+              "routing": "es9out#5",
+              "expected_voltage": 2.500
+            },
+            {
+              "module": "staircase",
+              "instance": 1,
+              "parameter": "frequency",
+              "value": 96,
+              "routing": "es9out#6",
+              "expected_voltage": 3.750
+            },
+            {
+              "module": "bridge",
+              "instance": 1,
+              "parameter": "crossfade",
+              "value": 32,
+              "routing": "es9out#7",
+              "expected_voltage": 1.250
+            },
+            {
+              "module": "curtain",
+              "instance": 1,
+              "parameter": "width",
+              "value": 110,
+              "routing": "es9out#8",
+              "expected_voltage": 4.330
+            }
+          ]
+        },
+        {
+          "timestamp_ms": 10000,
+          "action": "change_all_values",
+          "simultaneous_channels": [
+            {
+              "module": "visualcortex",
+              "instance": 1,
+              "parameter": "keyer",
+              "value": 25,
+              "routing": "es9out#1",
+              "expected_voltage": 0.984
+            },
+            {
+              "module": "doorway",
+              "instance": 1,
+              "parameter": "threshold",
+              "value": 75,
+              "routing": "es9out#2",
+              "expected_voltage": 2.953
+            },
+            {
+              "module": "navigator",
+              "instance": 1,
+              "parameter": "x",
+              "value": 50,
+              "routing": "es9out#3",
+              "expected_voltage": 1.969
+            },
+            {
+              "module": "navigator",
+              "instance": 1,
+              "parameter": "y",
+              "value": 100,
+              "routing": "es9out#4",
+              "expected_voltage": 3.937
+            },
+            {
+              "module": "shapechanger",
+              "instance": 1,
+              "parameter": "ratio",
+              "value": 15,
+              "routing": "es9out#5",
+              "expected_voltage": 0.591
+            },
+            {
+              "module": "staircase",
+              "instance": 1,
+              "parameter": "frequency",
+              "value": 120,
+              "routing": "es9out#6",
+              "expected_voltage": 4.724
+            },
+            {
+              "module": "bridge",
+              "instance": 1,
+              "parameter": "crossfade",
+              "value": 60,
+              "routing": "es9out#7",
+              "expected_voltage": 2.362
+            },
+            {
+              "module": "curtain",
+              "instance": 1,
+              "parameter": "width",
+              "value": 80,
+              "routing": "es9out#8",
+              "expected_voltage": 3.150
+            }
+          ]
+        }
+      ]
+    },
+    
+    "timing_test": {
+      "name": "Latency and Timing Test",
+      "description": "Measures end-to-end latency from OSC to CV",
+      "duration_ms": 30000,
+      "test_points": [
+        {
+          "timestamp_ms": 0,
+          "timing_test": true,
+          "module": "visualcortex",
+          "instance": 1,
+          "parameter": "keyer",
+          "value": 0,
+          "expected_latency_ms": 10,
+          "max_latency_ms": 20,
+          "routing": "es9out#1"
+        },
+        {
+          "timestamp_ms": 1000,
+          "timing_pulse": true,
+          "module": "visualcortex",
+          "instance": 1,
+          "parameter": "keyer",
+          "transition": [0, 127, 0],
+          "pulse_width_ms": 100,
+          "expected_rise_time_ms": 5,
+          "expected_fall_time_ms": 5
+        },
+        {
+          "timestamp_ms": 5000,
+          "burst_test": true,
+          "module": "visualcortex",
+          "instance": 1,
+          "parameter": "keyer",
+          "burst_rate_hz": 10,
+          "burst_duration_ms": 5000,
+          "burst_pattern": [0, 64, 127, 64],
+          "expected_jitter_ms": 1
+        }
+      ]
+    },
+    
+    "stress_test": {
+      "name": "High-Frequency Update Stress Test",
+      "description": "Tests system under high parameter update rates",
+      "duration_ms": 120000,
+      "test_points": [
+        {
+          "timestamp_ms": 0,
+          "stress_test_start": true,
+          "update_rate_hz": 50,
+          "channels_active": 8,
+          "pattern": "random_walk",
+          "max_step_size": 5,
+          "duration_ms": 30000
+        },
+        {
+          "timestamp_ms": 30000,
+          "stress_test_ramp": true,
+          "update_rate_hz": 100,
+          "channels_active": 8,
+          "pattern": "sine_wave",
+          "frequency_hz": 0.1,
+          "amplitude": 127,
+          "duration_ms": 30000
+        },
+        {
+          "timestamp_ms": 60000,
+          "stress_test_maximum": true,
+          "update_rate_hz": 200,
+          "channels_active": 8,
+          "pattern": "white_noise",
+          "bandwidth_hz": 10,
+          "duration_ms": 30000
+        },
+        {
+          "timestamp_ms": 90000,
+          "recovery_test": true,
+          "update_rate_hz": 1,
+          "channels_active": 8,
+          "pattern": "static_values",
+          "values": [64, 64, 64, 64, 64, 64, 64, 64],
+          "duration_ms": 30000
+        }
+      ]
+    },
+    
+    "network_interruption_test": {
+      "name": "Network Interruption Recovery Test",
+      "description": "Tests system recovery after network failures",
+      "duration_ms": 180000,
+      "test_points": [
+        {
+          "timestamp_ms": 0,
+          "normal_operation": true,
+          "module": "visualcortex",
+          "instance": 1,
+          "parameter": "keyer",
+          "value": 64,
+          "duration_ms": 30000
+        },
+        {
+          "timestamp_ms": 30000,
+          "network_disconnect": true,
+          "disconnect_duration_ms": 10000,
+          "expected_behavior": "maintain_last_value"
+        },
+        {
+          "timestamp_ms": 40000,
+          "network_reconnect": true,
+          "module": "visualcortex",
+          "instance": 1,
+          "parameter": "keyer",
+          "value": 85,
+          "expected_recovery_time_ms": 2000
+        },
+        {
+          "timestamp_ms": 60000,
+          "websocket_fallback_test": true,
+          "disable_osc": true,
+          "enable_websocket": true,
+          "module": "doorway",
+          "instance": 1,
+          "parameter": "threshold",
+          "value": 42,
+          "expected_latency_ms": 15
+        }
+      ]
+    },
+    
+    "expert_sleepers_full_test": {
+      "name": "Complete Expert Sleepers System Test",
+      "description": "Tests all 56 CV outputs across all device types",
+      "duration_ms": 300000,
+      "test_points": [
+        {
+          "timestamp_ms": 0,
+          "device_test": "es9",
+          "channels": 8,
+          "test_pattern": "sequential_ramp",
+          "ramp_duration_ms": 30000,
+          "start_value": 0,
+          "end_value": 127
+        },
+        {
+          "timestamp_ms": 30000,
+          "device_test": "esx8cv_unit1",
+          "channels": 8,
+          "channel_offset": 8,
+          "test_pattern": "sine_wave",
+          "frequency_hz": 0.05,
+          "amplitude": 127,
+          "duration_ms": 30000
+        },
+        {
+          "timestamp_ms": 60000,
+          "device_test": "esx8cv_unit2",
+          "channels": 8,
+          "channel_offset": 16,
+          "test_pattern": "triangle_wave",
+          "frequency_hz": 0.02,
+          "amplitude": 127,
+          "duration_ms": 30000
+        },
+        {
+          "timestamp_ms": 90000,
+          "device_test": "esx8cv_unit3",
+          "channels": 8,
+          "channel_offset": 24,
+          "test_pattern": "square_wave",
+          "frequency_hz": 0.1,
+          "amplitude": 127,
+          "duty_cycle": 0.5,
+          "duration_ms": 30000
+        },
+        {
+          "timestamp_ms": 120000,
+          "device_test": "esx8cv_unit4",
+          "channels": 8,
+          "channel_offset": 32,
+          "test_pattern": "random_walk",
+          "step_size": 3,
+          "step_interval_ms": 500,
+          "duration_ms": 30000
+        },
+        {
+          "timestamp_ms": 150000,
+          "device_test": "esx8cv_unit5",
+          "channels": 8,
+          "channel_offset": 40,
+          "test_pattern": "stepped_sequence",
+          "sequence": [0, 25, 50, 75, 100, 127, 100, 75, 50, 25],
+          "step_duration_ms": 3000,
+          "duration_ms": 30000
+        },
+        {
+          "timestamp_ms": 180000,
+          "device_test": "esx8cv_unit6",
+          "channels": 8,
+          "channel_offset": 48,
+          "test_pattern": "burst_pattern",
+          "burst_value": 127,
+          "rest_value": 0,
+          "burst_duration_ms": 1000,
+          "rest_duration_ms": 2000,
+          "duration_ms": 30000
+        },
+        {
+          "timestamp_ms": 210000,
+          "device_test": "all_channels_simultaneous",
+          "channels": 56,
+          "test_pattern": "coordinated_sweep",
+          "sweep_type": "radial",
+          "center_channel": 28,
+          "sweep_speed": 2.0,
+          "amplitude": 127,
+          "duration_ms": 60000
+        }
+      ]
+    }
+  },
+  
+  "validation_criteria": {
+    "voltage_accuracy": {
+      "tolerance_mv": 10,
+      "measurement_points": [0, 16, 32, 48, 64, 80, 96, 112, 127],
+      "required_linearity": 0.99,
+      "max_noise_mv": 2
+    },
+    
+    "timing_requirements": {
+      "max_latency_ms": 10,
+      "max_jitter_ms": 1,
+      "recovery_time_ms": 2000,
+      "update_rate_hz": 200
+    },
+    
+    "channel_isolation": {
+      "max_crosstalk_mv": 1,
+      "channel_matching_mv": 5,
+      "ground_isolation_ohms": 1000000
+    },
+    
+    "network_resilience": {
+      "reconnect_time_ms": 2000,
+      "packet_loss_tolerance": 0.01,
+      "websocket_fallback_latency_ms": 15,
+      "buffer_underrun_recovery_ms": 100
+    }
+  },
+  
+  "test_configurations": {
+    "quick_test": {
+      "sequences": ["basic_functionality"],
+      "duration_minutes": 5,
+      "automated": true
+    },
+    
+    "daily_verification": {
+      "sequences": ["basic_functionality", "multi_channel_test"],
+      "duration_minutes": 15,
+      "automated": true
+    },
+    
+    "weekly_validation": {
+      "sequences": ["basic_functionality", "multi_channel_test", "timing_test", "stress_test"],
+      "duration_minutes": 45,
+      "manual_verification": true
+    },
+    
+    "complete_system_test": {
+      "sequences": ["basic_functionality", "full_range_sweep", "multi_channel_test", "timing_test", "stress_test", "network_interruption_test", "expert_sleepers_full_test"],
+      "duration_minutes": 120,
+      "full_documentation": true,
+      "calibration_required": true
+    }
+  }
+}

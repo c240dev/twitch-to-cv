@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Twitch-to-CV Overlay</title>
+    <style>
+        /* CSS Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* CSS Custom Properties for Theming */
+        :root {
+            /* VHS Theme - Green Terminal */
+            --vhs-primary: #00ff00;
+            --vhs-secondary: #00cc00;
+            --vhs-background: #000000;
+            --vhs-text: #00dd00;
+            --vhs-dim: #008800;
+            --vhs-accent: #ffffff;
+            
+            /* Amber Terminal Alternative */
+            --amber-primary: #ffaa00;
+            --amber-secondary: #cc8800;
+            --amber-background: #1a0f00;
+            --amber-text: #ffcc44;
+            --amber-dim: #996600;
+            --amber-accent: #ffffff;
+            
+            /* Current theme variables */
+            --primary-color: var(--vhs-primary);
+            --secondary-color: var(--vhs-secondary);
+            --bg-color: var(--vhs-background);
+            --text-color: var(--vhs-text);
+            --dim-color: var(--vhs-dim);
+            --accent-color: var(--vhs-accent);
+            
+            /* Positioning variables */
+            --overlay-top: 20px;
+            --overlay-left: 20px;
+            --overlay-right: auto;
+            --overlay-bottom: auto;
+            
+            /* Style variables */
+            --overlay-opacity: 0.85;
+            --background-style: solid;
+        }
+
+        body {
+            /* VHS Terminal Typography */
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'DejaVu Sans Mono', monospace;
+            font-feature-settings: 'liga' 0; /* Disable ligatures for authentic terminal feel */
+            letter-spacing: 0.05em;
+            line-height: 1.2;
+            background: transparent;
+            overflow: hidden;
+            width: 1920px;
+            height: 1080px;
+            position: relative;
+        }
+
+        /* VHS Scan Line Effect */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                transparent 50%,
+                rgba(0, 255, 0, 0.02) 50%
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            animation: scan-lines 0.1s linear infinite;
+            z-index: 1000;
+        }
+
+        @keyframes scan-lines {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(4px); }
+        }
+
+        /* Main Container */
+        .overlay-container {
+            position: absolute;
+            top: var(--overlay-top);
+            left: var(--overlay-left);
+            right: var(--overlay-right);
+            bottom: var(--overlay-bottom);
+            width: 420px;
+            max-height: 700px;
+            background: rgba(0, 0, 0, var(--overlay-opacity));
+            border: 1px solid var(--primary-color);
+            border-radius: 0; /* Terminal sharp corners */
+            padding: 15px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .overlay-container.hidden {
+            opacity: 0;
+            transform: translate(-20px, 0);
+        }
+
+        /* Header */
+        .overlay-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--dim-color);
+        }
+
+        .overlay-title {
+            color: var(--primary-color);
+            font-size: 16px;
+            font-weight: normal;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            background: var(--primary-color);
+            animation: terminal-blink 1s infinite;
+        }
+
+        @keyframes terminal-blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        /* Enhanced Stats Bar with Prominent Latency */
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--dim-color);
+            font-size: 12px;
+        }
+
+        .stat-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        .stat-item {
+            color: var(--text-color);
+        }
+
+        .stat-label {
+            color: var(--dim-color);
+            margin-right: 4px;
+        }
+
+        .stat-value {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        /* Prominent Latency Display */
+        .latency-display {
+            color: var(--primary-color);
+            font-weight: bold;
+            padding: 4px 8px;
+            border: 1px solid var(--primary-color);
+            background: rgba(0, 255, 0, 0.1);
+        }
+
+        .latency-display.good { 
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        .latency-display.warning { 
+            color: #ffaa00;
+            border-color: #ffaa00;
+        }
+        .latency-display.poor { 
+            color: #ff0000;
+            border-color: #ff0000;
+        }
+
+        /* Module Groups Container */
+        .modules-container {
+            max-height: 450px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary-color) transparent;
+        }
+
+        .modules-container::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .modules-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .modules-container::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+        }
+
+        /* Module Group */
+        .module-group {
+            margin-bottom: 15px;
+            border: 1px solid var(--dim-color);
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .module-header {
+            color: var(--accent-color);
+            font-weight: bold;
+            padding: 6px 10px;
+            background: rgba(0, 255, 0, 0.1);
+            border-bottom: 1px solid var(--dim-color);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 13px;
+        }
+
+        .module-parameters {
+            padding: 8px 10px;
+        }
+
+        /* Parameter Item */
+        .parameter-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+            border-bottom: 1px dotted var(--dim-color);
+            transition: all 0.3s ease;
+            opacity: 0;
+            animation: terminal-slide-in 0.5s ease forwards;
+        }
+
+        .parameter-item:last-child {
+            border-bottom: none;
+        }
+
+        @keyframes terminal-slide-in {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Activity Glow Effect */
+        .parameter-item.updating {
+            animation: activity-glow 1.5s ease-out;
+        }
+
+        @keyframes activity-glow {
+            0% { 
+                background: rgba(0, 255, 0, 0);
+                box-shadow: none;
+            }
+            50% { 
+                background: rgba(0, 255, 0, 0.2);
+                box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+            }
+            100% { 
+                background: rgba(0, 255, 0, 0);
+                box-shadow: none;
+            }
+        }
+
+        .parameter-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .parameter-name {
+            color: var(--text-color);
+            font-size: 13px;
+            margin-bottom: 2px;
+            word-break: break-all;
+        }
+
+        .parameter-user {
+            color: var(--dim-color);
+            font-size: 10px;
+            font-style: italic;
+        }
+
+        .parameter-value-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            min-width: 80px;
+        }
+
+        .parameter-value {
+            color: var(--primary-color);
+            font-size: 14px;
+            font-weight: bold;
+            transition: all var(--animation-duration, 300ms) ease;
+        }
+
+        .parameter-value.small-change { --animation-duration: 300ms; }
+        .parameter-value.medium-change { --animation-duration: 150ms; }
+        .parameter-value.large-change { --animation-duration: 75ms; }
+
+        /* Value Scale Legend */
+        .scale-legend {
+            margin-top: 15px;
+            padding: 8px;
+            border: 1px solid var(--dim-color);
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--dim-color);
+            font-size: 11px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: opacity 0.3s ease;
+        }
+
+        .scale-legend.hidden {
+            opacity: 0;
+            height: 0;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Recent Command Display */
+        .recent-command {
+            margin-top: 15px;
+            padding: 10px;
+            border: 1px solid var(--dim-color);
+            background: rgba(0, 255, 0, 0.05);
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .recent-command-label {
+            color: var(--dim-color);
+            font-size: 10px;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .recent-command-text {
+            color: var(--text-color);
+            font-size: 12px;
+            word-break: break-all;
+        }
+
+        /* Connection Status */
+        .connection-status {
+            position: absolute;
+            bottom: 10px;
+            left: 15px;
+            display: flex;
+            align-items: center;
+            font-size: 10px;
+            color: var(--dim-color);
+        }
+
+        .connection-dot {
+            width: 6px;
+            height: 6px;
+            margin-right: 6px;
+            background: #ff0000;
+            transition: background 0.3s ease;
+        }
+
+        .connection-dot.connected {
+            background: var(--primary-color);
+            animation: terminal-blink 2s infinite;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--dim-color);
+        }
+
+        .empty-state-icon {
+            font-size: 32px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+            color: var(--primary-color);
+        }
+
+        .empty-state-text {
+            font-size: 12px;
+            line-height: 1.4;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Theme Classes */
+        .theme-amber {
+            --primary-color: var(--amber-primary);
+            --secondary-color: var(--amber-secondary);
+            --bg-color: var(--amber-background);
+            --text-color: var(--amber-text);
+            --dim-color: var(--amber-dim);
+            --accent-color: var(--amber-accent);
+        }
+
+        /* Position Classes */
+        .position-top-left {
+            --overlay-top: 20px;
+            --overlay-left: 20px;
+            --overlay-right: auto;
+            --overlay-bottom: auto;
+        }
+
+        .position-top-right {
+            --overlay-top: 20px;
+            --overlay-left: auto;
+            --overlay-right: 20px;
+            --overlay-bottom: auto;
+        }
+
+        .position-bottom-left {
+            --overlay-top: auto;
+            --overlay-left: 20px;
+            --overlay-right: auto;
+            --overlay-bottom: 20px;
+        }
+
+        .position-bottom-right {
+            --overlay-top: auto;
+            --overlay-left: auto;
+            --overlay-right: 20px;
+            --overlay-bottom: 20px;
+        }
+
+        /* Style Classes */
+        .style-transparent { --overlay-opacity: 0.5; }
+        .style-semi-solid { --overlay-opacity: 0.75; }
+        .style-current { --overlay-opacity: 0.85; }
+        .style-high-contrast { --overlay-opacity: 0.95; }
+
+        /* Responsive Design */
+        @media (max-width: 1366px) {
+            .overlay-container {
+                width: 350px;
+                max-height: 550px;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .overlay-container {
+                width: 300px;
+                max-height: 450px;
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay-container position-top-left theme-green style-current" id="overlayContainer">
+        <!-- Header -->
+        <div class="overlay-header">
+            <div class="overlay-title">CV CONTROL SYSTEM</div>
+            <div class="status-indicator" id="statusIndicator"></div>
+        </div>
+
+        <!-- Enhanced Stats Bar with Prominent Latency -->
+        <div class="stats-bar">
+            <div class="stat-group">
+                <div class="stat-item">
+                    <span class="stat-label">MODULES:</span>
+                    <span class="stat-value" id="moduleCount">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">PARAMS:</span>
+                    <span class="stat-value" id="paramCount">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">USERS:</span>
+                    <span class="stat-value" id="userCount">0</span>
+                </div>
+            </div>
+            <div class="latency-display good" id="latencyDisplay">
+                <span id="latencyValue">0</span>MS
+            </div>
+        </div>
+
+        <!-- Module Groups Display -->
+        <div class="modules-container" id="modulesContainer">
+            <div class="empty-state" id="emptyState">
+                <div class="empty-state-icon">◊</div>
+                <div class="empty-state-text">
+                    AWAITING CV ROUTING...<br>
+                    <em>modulename#1.parameter: value</em>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dynamic Value Scale Legend -->
+        <div class="scale-legend" id="scaleLegend">
+            ALL INPUTS: 0–127 (SCALED TO 0–1V CV)
+        </div>
+
+        <!-- Recent Command -->
+        <div class="recent-command" id="recentCommand" style="display: none;">
+            <div class="recent-command-label">LATEST COMMAND</div>
+            <div class="recent-command-text" id="recentCommandText"></div>
+        </div>
+
+        <!-- Connection Status -->
+        <div class="connection-status">
+            <div class="connection-dot" id="connectionDot"></div>
+            <span id="connectionText">CONNECTING...</span>
+        </div>
+    </div>
+
+    <script>
+        class EnhancedTwitchCVOverlay {
+            constructor() {
+                this.websocket = null;
+                this.modules = new Map(); // module -> parameters Map
+                this.users = new Set();
+                this.isConnected = false;
+                this.reconnectAttempts = 0;
+                this.maxReconnectAttempts = 5;
+                
+                // Configuration
+                this.config = {
+                    position: 'top-left',
+                    theme: 'green',
+                    style: 'current',
+                    valueDisplay: 'raw', // 'raw', 'cv', 'both'
+                    fadeTimeout: 30000 // 30 seconds
+                };
+                
+                // Fade timers for inactive parameters
+                this.fadeTimers = new Map();
+                
+                // DOM elements
+                this.elements = {
+                    container: document.getElementById('overlayContainer'),
+                    statusIndicator: document.getElementById('statusIndicator'),
+                    moduleCount: document.getElementById('moduleCount'),
+                    paramCount: document.getElementById('paramCount'),
+                    userCount: document.getElementById('userCount'),
+                    latencyDisplay: document.getElementById('latencyDisplay'),
+                    latencyValue: document.getElementById('latencyValue'),
+                    modulesContainer: document.getElementById('modulesContainer'),
+                    emptyState: document.getElementById('emptyState'),
+                    scaleLegend: document.getElementById('scaleLegend'),
+                    recentCommand: document.getElementById('recentCommand'),
+                    recentCommandText: document.getElementById('recentCommandText'),
+                    connectionDot: document.getElementById('connectionDot'),
+                    connectionText: document.getElementById('connectionText')
+                };
+                
+                this.init();
+            }
+            
+            init() {
+                this.loadConfiguration();
+                this.applyConfiguration();
+                this.connect();
+                this.setupEventListeners();
+                console.log('🎛️ Enhanced Twitch-to-CV Overlay initialized');
+            }
+            
+            loadConfiguration() {
+                const stored = localStorage.getItem('enhanced-overlay-config');
+                if (stored) {
+                    this.config = { ...this.config, ...JSON.parse(stored) };
+                }
+            }
+            
+            saveConfiguration() {
+                localStorage.setItem('enhanced-overlay-config', JSON.stringify(this.config));
+            }
+            
+            applyConfiguration() {
+                const container = this.elements.container;
+                
+                // Remove all position, theme, and style classes
+                container.className = container.className
+                    .replace(/position-\w+/g, '')
+                    .replace(/theme-\w+/g, '')
+                    .replace(/style-\w+/g, '');
+                
+                // Apply current configuration
+                container.classList.add(`position-${this.config.position}`);
+                container.classList.add(`theme-${this.config.theme}`);
+                container.classList.add(`style-${this.config.style}`);
+            }
+            
+            connect() {
+                const wsUrl = 'ws://localhost:3001';
+                
+                try {
+                    this.websocket = new WebSocket(wsUrl);
+                    this.setupWebSocketHandlers();
+                } catch (error) {
+                    console.error('WebSocket connection error:', error);
+                    this.handleConnectionError();
+                }
+            }
+            
+            setupWebSocketHandlers() {
+                this.websocket.onopen = () => {
+                    console.log('✅ Connected to Enhanced Twitch-to-CV Bot');
+                    this.isConnected = true;
+                    this.reconnectAttempts = 0;
+                    this.updateConnectionStatus(true);
+                };
+                
+                this.websocket.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
+                        this.handleMessage(data);
+                    } catch (error) {
+                        console.error('Message parsing error:', error);
+                    }
+                };
+                
+                this.websocket.onclose = () => {
+                    console.log('❌ Disconnected from Enhanced Twitch-to-CV Bot');
+                    this.isConnected = false;
+                    this.updateConnectionStatus(false);
+                    this.scheduleReconnect();
+                };
+                
+                this.websocket.onerror = (error) => {
+                    console.error('WebSocket error:', error);
+                    this.handleConnectionError();
+                };
+            }
+            
+            handleMessage(data) {
+                switch (data.type) {
+                    case 'full_state':
+                        this.handleFullState(data);
+                        break;
+                    case 'cv_update':
+                        this.handleCVUpdate(data);
+                        break;
+                    case 'routing_display':
+                        this.handleRoutingDisplay(data);
+                        break;
+                    case 'overlay_toggle':
+                        this.handleOverlayToggle(data);
+                        break;
+                    case 'clear_all':
+                        this.handleClearAll();
+                        break;
+                    case 'ping':
+                        // Heartbeat response
+                        break;
+                    default:
+                        console.log('Unknown message type:', data.type);
+                }
+            }
+            
+            handleFullState(data) {
+                // Clear current state
+                this.modules.clear();
+                this.users.clear();
+                this.clearFadeTimers();
+                
+                // Process active variables grouped by module
+                if (data.activeVariables) {
+                    data.activeVariables.forEach(([variable, value]) => {
+                        this.addParameter(variable, value, 'System', Date.now(), false);
+                    });
+                }
+                
+                // Update display
+                this.updateModulesDisplay();
+                this.updateStats();
+                
+                if (data.lastCommand) {
+                    this.updateRecentCommand(data.lastCommand);
+                }
+                
+                if (data.latency !== undefined) {
+                    this.updateLatency(data.latency);
+                }
+            }
+            
+            handleCVUpdate(data) {
+                const { variable, value, user, timestamp } = data;
+                
+                // Add/update parameter
+                this.addParameter(variable, value, user, timestamp || Date.now(), true);
+                this.users.add(user);
+                
+                // Update display
+                this.updateModulesDisplay();
+                this.updateStats();
+                this.updateRecentCommand(`${variable}: ${value}`);
+                
+                console.log(`✅ CV Update: ${user} -> ${variable}: ${value}`);
+            }
+            
+            handleRoutingDisplay(data) {
+                // Temporarily display all routed variables
+                // This would be triggered by chat commands like "routes" or "all active"
+                if (data.allRouted) {
+                    // Implementation for showing all routed variables temporarily
+                    console.log('📋 Displaying all routed variables:', data.allRouted);
+                }
+            }
+            
+            addParameter(variable, value, user, timestamp, animate = false) {
+                // Parse module and parameter from variable (e.g., "oscillator#1.frequency")
+                const match = variable.match(/^([^#]+#\d+)\.(.+)$/);
+                if (!match) return;
+                
+                const [, moduleName, paramName] = match;
+                
+                // Ensure module exists
+                if (!this.modules.has(moduleName)) {
+                    this.modules.set(moduleName, new Map());
+                }
+                
+                // Get old value for animation calculation
+                const moduleParams = this.modules.get(moduleName);
+                const oldParam = moduleParams.get(paramName);
+                const oldValue = oldParam ? oldParam.value : 0;
+                
+                // Calculate change magnitude for animation
+                const changeMagnitude = Math.abs(value - oldValue);
+                let changeClass = 'small-change';
+                if (changeMagnitude >= 50) changeClass = 'large-change';
+                else if (changeMagnitude >= 20) changeClass = 'medium-change';
+                
+                // Add parameter
+                moduleParams.set(paramName, {
+                    value,
+                    user,
+                    timestamp,
+                    animate,
+                    changeClass
+                });
+                
+                // Set up fade timer
+                this.setupFadeTimer(moduleName, paramName);
+            }
+            
+            setupFadeTimer(moduleName, paramName) {
+                const key = `${moduleName}.${paramName}`;
+                
+                // Clear existing timer
+                if (this.fadeTimers.has(key)) {
+                    clearTimeout(this.fadeTimers.get(key));
+                }
+                
+                // Set new fade timer
+                const timer = setTimeout(() => {
+                    this.removeParameter(moduleName, paramName);
+                }, this.config.fadeTimeout);
+                
+                this.fadeTimers.set(key, timer);
+            }
+            
+            removeParameter(moduleName, paramName) {
+                const moduleParams = this.modules.get(moduleName);
+                if (moduleParams) {
+                    moduleParams.delete(paramName);
+                    
+                    // Remove module if empty
+                    if (moduleParams.size === 0) {
+                        this.modules.delete(moduleName);
+                    }
+                    
+                    // Update display
+                    this.updateModulesDisplay();
+                    this.updateStats();
+                }
+                
+                // Clear fade timer
+                const key = `${moduleName}.${paramName}`;
+                this.fadeTimers.delete(key);
+            }
+            
+            clearFadeTimers() {
+                this.fadeTimers.forEach(timer => clearTimeout(timer));
+                this.fadeTimers.clear();
+            }
+            
+            updateModulesDisplay() {
+                const container = this.elements.modulesContainer;
+                const isEmpty = this.modules.size === 0;
+                
+                if (isEmpty) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">◊</div>
+                            <div class="empty-state-text">
+                                AWAITING CV ROUTING...<br>
+                                <em>modulename#1.parameter: value</em>
+                            </div>
+                        </div>
+                    `;
+                    this.elements.scaleLegend.classList.add('hidden');
+                    return;
+                }
+                
+                // Show legend if space allows
+                this.updateLegendVisibility();
+                
+                // Build module groups HTML
+                const moduleGroups = Array.from(this.modules.entries())
+                    .sort(([a], [b]) => a.localeCompare(b))
+                    .map(([moduleName, parameters]) => this.createModuleGroupHTML(moduleName, parameters))
+                    .join('');
+                
+                container.innerHTML = moduleGroups;
+            }
+            
+            createModuleGroupHTML(moduleName, parameters) {
+                const parameterItems = Array.from(parameters.entries())
+                    .sort(([a], [b]) => a.localeCompare(b))
+                    .map(([paramName, data]) => this.createParameterHTML(paramName, data))
+                    .join('');
+                
+                return `
+                    <div class="module-group">
+                        <div class="module-header">${moduleName}</div>
+                        <div class="module-parameters">
+                            ${parameterItems}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            createParameterHTML(paramName, data) {
+                const { value, user, animate, changeClass } = data;
+                const displayValue = this.formatValue(value);
+                const animateClass = animate ? 'updating' : '';
+                
+                return `
+                    <div class="parameter-item ${animateClass}" data-param="${paramName}">
+                        <div class="parameter-info">
+                            <div class="parameter-name">${paramName}</div>
+                            <div class="parameter-user">by ${user}</div>
+                        </div>
+                        <div class="parameter-value-container">
+                            <div class="parameter-value ${changeClass}">${displayValue}</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            formatValue(value) {
+                switch (this.config.valueDisplay) {
+                    case 'cv':
+                        return (value / 127).toFixed(3) + 'V';
+                    case 'both':
+                        return `${value} (${(value / 127).toFixed(2)}V)`;
+                    default:
+                        return value.toString();
+                }
+            }
+            
+            updateLegendVisibility() {
+                const totalParams = Array.from(this.modules.values())
+                    .reduce((sum, params) => sum + params.size, 0);
+                
+                // Hide legend if too many parameters (space constraint)
+                if (totalParams > 12) {
+                    this.elements.scaleLegend.classList.add('hidden');
+                } else {
+                    this.elements.scaleLegend.classList.remove('hidden');
+                }
+            }
+            
+            updateStats() {
+                this.elements.moduleCount.textContent = this.modules.size;
+                
+                const totalParams = Array.from(this.modules.values())
+                    .reduce((sum, params) => sum + params.size, 0);
+                this.elements.paramCount.textContent = totalParams;
+                
+                this.elements.userCount.textContent = this.users.size;
+            }
+            
+            updateLatency(latency) {
+                this.elements.latencyValue.textContent = latency;
+                
+                // Color-coded performance indicators
+                const display = this.elements.latencyDisplay;
+                display.className = 'latency-display';
+                
+                if (latency < 5) {
+                    display.classList.add('good');
+                } else if (latency < 10) {
+                    display.classList.add('warning');
+                } else {
+                    display.classList.add('poor');
+                }
+            }
+            
+            updateRecentCommand(command) {
+                this.elements.recentCommandText.textContent = command;
+                this.elements.recentCommand.style.display = 'block';
+            }
+            
+            handleOverlayToggle(data) {
+                if (data.enabled) {
+                    this.elements.container.classList.remove('hidden');
+                } else {
+                    this.elements.container.classList.add('hidden');
+                }
+            }
+            
+            handleClearAll() {
+                this.modules.clear();
+                this.users.clear();
+                this.clearFadeTimers();
+                this.updateModulesDisplay();
+                this.updateStats();
+            }
+            
+            updateConnectionStatus(connected) {
+                if (connected) {
+                    this.elements.connectionDot.classList.add('connected');
+                    this.elements.connectionText.textContent = 'CONNECTED';
+                } else {
+                    this.elements.connectionDot.classList.remove('connected');
+                    this.elements.connectionText.textContent = 'DISCONNECTED';
+                }
+            }
+            
+            handleConnectionError() {
+                this.isConnected = false;
+                this.updateConnectionStatus(false);
+            }
+            
+            scheduleReconnect() {
+                if (this.reconnectAttempts < this.maxReconnectAttempts) {
+                    this.reconnectAttempts++;
+                    const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000);
+                    
+                    this.elements.connectionText.textContent = `RECONNECTING IN ${Math.ceil(delay/1000)}S...`;
+                    
+                    setTimeout(() => {
+                        console.log(`🔄 Reconnection attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts}`);
+                        this.connect();
+                    }, delay);
+                } else {
+                    this.elements.connectionText.textContent = 'CONNECTION FAILED';
+                    console.error('❌ Max reconnection attempts reached');
+                }
+            }
+            
+            setupEventListeners() {
+                // Keyboard shortcuts for configuration
+                document.addEventListener('keydown', (e) => {
+                    if (e.ctrlKey && e.key === 'r') {
+                        e.preventDefault();
+                        location.reload();
+                    }
+                    
+                    // Toggle theme with Ctrl+T
+                    if (e.ctrlKey && e.key === 't') {
+                        e.preventDefault();
+                        this.toggleTheme();
+                    }
+                    
+                    // Toggle position with Ctrl+P
+                    if (e.ctrlKey && e.key === 'p') {
+                        e.preventDefault();
+                        this.togglePosition();
+                    }
+                });
+                
+                // Window focus handling for performance
+                window.addEventListener('focus', () => {
+                    if (!this.isConnected) {
+                        this.reconnectAttempts = 0;
+                        this.connect();
+                    }
+                });
+            }
+            
+            toggleTheme() {
+                this.config.theme = this.config.theme === 'green' ? 'amber' : 'green';
+                this.applyConfiguration();
+                this.saveConfiguration();
+            }
+            
+            togglePosition() {
+                const positions = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
+                const currentIndex = positions.indexOf(this.config.position);
+                const nextIndex = (currentIndex + 1) % positions.length;
+                this.config.position = positions[nextIndex];
+                this.applyConfiguration();
+                this.saveConfiguration();
+            }
+        }
+        
+        // Initialize overlay when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            new EnhancedTwitchCVOverlay();
+        });
+        
+        // Performance monitoring
+        if (performance && performance.mark) {
+            performance.mark('enhanced-overlay-init-start');
+            window.addEventListener('load', () => {
+                performance.mark('enhanced-overlay-init-end');
+                performance.measure('enhanced-overlay-init', 'enhanced-overlay-init-start', 'enhanced-overlay-init-end');
+                console.log('🚀 Enhanced overlay initialization completed');
+            });
+        }
+    </script>
+</body>
+</html>

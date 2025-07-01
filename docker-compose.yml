@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+  
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: twitch_cv
+      POSTGRES_USER: twitch_cv_user
+      POSTGRES_PASSWORD: twitch_cv_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+  
+  # Uncomment to run the enhanced bot in Docker
+  # twitch-cv-bot:
+  #   build: .
+  #   depends_on:
+  #     - redis
+  #     - postgres
+  #   environment:
+  #     - REDIS_URL=redis://redis:6379
+  #     - DATABASE_URL=postgresql://twitch_cv_user:twitch_cv_pass@postgres:5432/twitch_cv
+  #   volumes:
+  #     - .:/app
+  #   restart: unless-stopped
+
+volumes:
+  redis_data:
+  postgres_data:

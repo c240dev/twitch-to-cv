@@ -5,16 +5,28 @@
   "main": "bot.js",
   "scripts": {
     "start": "node bot.js",
+    "start:enhanced": "node enhanced-bot.js",
+    "start:admin": "node fastify-admin-server.js",
     "dev": "nodemon bot.js",
-    "test": "node test.js"
+    "dev:enhanced": "nodemon enhanced-bot.js",
+    "dev:admin": "nodemon fastify-admin-server.js",
+    "test": "node test.js",
+    "setup:db": "docker-compose up -d redis postgres",
+    "setup:env": "cp .env.enhanced.example .env.enhanced"
   },
   "dependencies": {
     "tmi.js": "^1.8.5",
-    "ws": "^8.14.2",
+    "uws": "github:uNetworking/uWebSockets.js#v20.44.0",
     "node-osc": "^9.1.0",
-    "express": "^4.18.2",
-    "cors": "^2.8.5",
-    "dotenv": "^16.3.1"
+    "fastify": "^4.24.3",
+    "@fastify/cors": "^8.4.0",
+    "@fastify/static": "^6.12.0",
+    "@fastify/rate-limit": "^8.0.3",
+    "@fastify/auth": "^4.4.0",
+    "@fastify/websocket": "^8.3.1",
+    "dotenv": "^16.3.1",
+    "redis": "^4.6.12",
+    "pg": "^8.11.3"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

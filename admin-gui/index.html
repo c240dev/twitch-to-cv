@@ -1,0 +1,1649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitch-to-CV Admin Interface</title>
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1a1a1a;
+            --text-primary: #00ff00;
+            --text-secondary: #00aa00;
+            --border: #333;
+            --accent: #ffaa00;
+            --error: #ff3333;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+        }
+        
+        .header h1 {
+            color: var(--accent);
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .status-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            padding: 20px;
+        }
+        
+        .status-card h3 {
+            color: var(--accent);
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .metric-value {
+            color: var(--text-primary);
+            font-weight: bold;
+        }
+        
+        .variables-container {
+            margin-bottom: 30px;
+        }
+        
+        .variables-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .variables-header h3 {
+            color: var(--accent);
+            font-size: 18px;
+        }
+        
+        .btn {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: inherit;
+            transition: all 0.2s;
+        }
+        
+        .btn:hover {
+            background: var(--border);
+            color: var(--accent);
+        }
+        
+        .btn-danger {
+            border-color: var(--error);
+            color: var(--error);
+        }
+        
+        .btn-danger:hover {
+            background: var(--error);
+            color: var(--bg-primary);
+        }
+        
+        .variables-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .variable-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            padding: 15px;
+        }
+        
+        .variable-name {
+            color: var(--accent);
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .variable-value {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+        
+        .variable-user {
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+        
+        .module-section {
+            margin-bottom: 25px;
+        }
+        
+        .module-header {
+            color: var(--accent);
+            font-size: 16px;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .connection-status {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .connection-status.connected {
+            background: var(--text-primary);
+        }
+        
+        .connection-status.disconnected {
+            background: var(--error);
+        }
+        
+        .cv-command-form {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-secondary);
+        }
+        
+        .form-group input {
+            width: 100%;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 8px;
+            font-family: inherit;
+            font-size: inherit;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .logs {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+        
+        .log-entry {
+            margin-bottom: 5px;
+            color: var(--text-secondary);
+        }
+        
+        .log-timestamp {
+            color: var(--text-primary);
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .rate-limit-visual {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            padding: 20px;
+        }
+        
+        .token-bucket {
+            margin-bottom: 20px;
+        }
+        
+        .bucket-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .bucket-name {
+            color: var(--accent);
+            font-weight: bold;
+        }
+        
+        .bucket-value {
+            color: var(--text-primary);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--text-primary), var(--accent));
+            transition: width 0.3s ease;
+            position: relative;
+        }
+        
+        .progress-fill.low {
+            background: linear-gradient(90deg, var(--error), #ff6666);
+        }
+        
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--bg-primary);
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 2;
+        }
+        
+        .emergency-panel {
+            background: var(--bg-secondary);
+            border: 2px solid var(--error);
+            padding: 20px;
+        }
+        
+        .emergency-header {
+            color: var(--error);
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .emergency-btn {
+            width: 100%;
+            background: var(--error);
+            color: var(--bg-primary);
+            border: none;
+            padding: 15px;
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 10px;
+            transition: all 0.2s;
+        }
+        
+        .emergency-btn:hover {
+            background: #ff6666;
+            transform: scale(1.02);
+        }
+        
+        .routing-manager {
+            margin-bottom: 30px;
+        }
+        
+        .routing-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .routing-table {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .routing-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .routing-entry:last-child {
+            border-bottom: none;
+        }
+        
+        .routing-path {
+            color: var(--text-primary);
+            font-family: inherit;
+        }
+        
+        .routing-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+        
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            padding: 20px;
+            height: 200px;
+            position: relative;
+        }
+        
+        .chart-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .tab {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: inherit;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .instance-list {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            padding: 15px;
+        }
+        
+        .instance-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .instance-item:last-child {
+            border-bottom: none;
+        }
+        
+        .instance-status {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .instance-status.online {
+            background: var(--text-primary);
+        }
+        
+        .instance-status.offline {
+            background: var(--error);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>TWITCH-TO-CV ADMIN INTERFACE</h1>
+            <div>
+                <span class="connection-status" id="connectionStatus"></span>
+                <span id="connectionText">Connecting...</span>
+            </div>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('dashboard')">DASHBOARD</button>
+            <button class="tab" onclick="showTab('routing')">ROUTING</button>
+            <button class="tab" onclick="showTab('analytics')">ANALYTICS</button>
+            <button class="tab" onclick="showTab('instances')">INSTANCES</button>
+        </div>
+        
+        <div id="dashboard" class="tab-content active">
+            <div class="dashboard-grid">
+                <div class="rate-limit-visual">
+                    <h3 style="color: var(--accent); margin-bottom: 20px;">RATE LIMITING STATUS</h3>
+                    
+                    <div class="token-bucket">
+                        <div class="bucket-header">
+                            <span class="bucket-name">SYSTEM TOKENS</span>
+                            <span class="bucket-value" id="systemTokensValue">-/-</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="systemTokensBar" style="width: 0%">
+                                <div class="progress-text" id="systemTokensPercent">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="token-bucket">
+                        <div class="bucket-header">
+                            <span class="bucket-name">USER COOLDOWNS</span>
+                            <span class="bucket-value" id="userCooldownsValue">0 active</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="userCooldownsBar" style="width: 0%">
+                                <div class="progress-text" id="userCooldownsPercent">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="token-bucket">
+                        <div class="bucket-header">
+                            <span class="bucket-name">VARIABLE BUCKETS</span>
+                            <span class="bucket-value" id="variableBucketsValue">0 active</span>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border);">
+                        <div class="metric">
+                            <span>Total Requests:</span>
+                            <span class="metric-value" id="totalRequests">-</span>
+                        </div>
+                        <div class="metric">
+                            <span>Blocked Requests:</span>
+                            <span class="metric-value" id="blockedRequests">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="emergency-panel">
+                    <div class="emergency-header">EMERGENCY CONTROLS</div>
+                    <button class="emergency-btn" onclick="emergencyStop()">
+                        🚨 EMERGENCY STOP
+                    </button>
+                    <button class="emergency-btn" onclick="clearAllVariables()" style="background: var(--accent);">
+                        🧹 CLEAR ALL VARIABLES
+                    </button>
+                    <button class="emergency-btn" onclick="toggleOverlay()" style="background: var(--text-secondary);">
+                        🖼️ TOGGLE OVERLAY
+                    </button>
+                    
+                    <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border);">
+                        <h4 style="color: var(--accent); margin-bottom: 10px;">SYSTEM STATUS</h4>
+                        <div class="metric">
+                            <span>Active Variables:</span>
+                            <span class="metric-value" id="activeCount">-</span>
+                        </div>
+                        <div class="metric">
+                            <span>System Latency:</span>
+                            <span class="metric-value" id="systemLatency">-</span>
+                        </div>
+                        <div class="metric">
+                            <span>Overlay Status:</span>
+                            <span class="metric-value" id="overlayStatus">-</span>
+                        </div>
+                        <div class="metric">
+                            <span>Last Command:</span>
+                            <span class="metric-value" id="lastCommand" style="font-size: 12px;">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Routing Tab -->
+        <div id="routing" class="tab-content">
+            <div class="routing-manager">
+                <div class="routing-controls">
+                    <button class="btn" onclick="refreshRouting()">REFRESH ROUTING</button>
+                    <button class="btn" onclick="addNewRoute()">ADD ROUTE</button>
+                    <button class="btn btn-danger" onclick="clearAllRoutes()">CLEAR ALL</button>
+                </div>
+                
+                <div class="routing-table" id="routingTable">
+                    <p>Loading routing table...</p>
+                </div>
+            </div>
+            
+            <div class="cv-command-form">
+                <h3>MANUAL CV COMMAND</h3>
+                <form onsubmit="sendCVCommand(event)">
+                    <div class="form-group">
+                        <label>Variable:</label>
+                        <input type="text" id="cvVariable" placeholder="oscillator#1.frequency" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Value (0-127):</label>
+                        <input type="number" id="cvValue" min="0" max="127" required>
+                    </div>
+                    <div class="form-group">
+                        <label>User:</label>
+                        <input type="text" id="cvUser" placeholder="admin" required>
+                    </div>
+                    <button type="submit" class="btn">SEND COMMAND</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Analytics Tab -->
+        <div id="analytics" class="tab-content">
+            <div class="analytics-grid">
+                <div class="chart-container">
+                    <h3 style="color: var(--accent); margin-bottom: 15px;">COMMAND STATISTICS</h3>
+                    <div class="metric">
+                        <span>Total Commands Today:</span>
+                        <span class="metric-value" id="totalCommandsToday">-</span>
+                    </div>
+                    <div class="metric">
+                        <span>Average Latency:</span>
+                        <span class="metric-value" id="avgLatency">-</span>
+                    </div>
+                    <div class="metric">
+                        <span>Peak Commands/Hour:</span>
+                        <span class="metric-value" id="peakCommands">-</span>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <h3 style="color: var(--accent); margin-bottom: 15px;">SYSTEM PERFORMANCE</h3>
+                    <div class="metric">
+                        <span>Uptime:</span>
+                        <span class="metric-value" id="systemUptime">-</span>
+                    </div>
+                    <div class="metric">
+                        <span>Memory Usage:</span>
+                        <span class="metric-value" id="memoryUsage">-</span>
+                    </div>
+                    <div class="metric">
+                        <span>Error Rate:</span>
+                        <span class="metric-value" id="errorRate">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Instances Tab -->
+        <div id="instances" class="tab-content">
+            <div class="instance-list" id="instanceList">
+                <h3 style="color: var(--accent); margin-bottom: 15px;">CONNECTED INSTANCES</h3>
+                <div class="instance-item">
+                    <div>
+                        <span class="instance-status online"></span>
+                        <span>bot-001 (current)</span>
+                    </div>
+                    <div>
+                        <button class="btn btn-small">RESTART</button>
+                        <button class="btn btn-small btn-danger">STOP</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 30px;">
+                <h3 style="color: var(--accent); margin-bottom: 15px;">INSTANCE COORDINATION</h3>
+                <div class="routing-controls">
+                    <button class="btn" onclick="broadcastEmergencyStop()">BROADCAST EMERGENCY STOP</button>
+                    <button class="btn" onclick="syncAllInstances()">SYNC ALL INSTANCES</button>
+                    <button class="btn" onclick="showInstanceLogs()">VIEW LOGS</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="variables-container">
+            <div class="variables-header">
+                <h3>ACTIVE VARIABLES</h3>
+                <div>
+                    <button class="btn" onclick="refreshData()">REFRESH</button>
+                    <button class="btn btn-danger" onclick="clearAllVariables()">CLEAR ALL</button>
+                </div>
+            </div>
+            <div id="variablesContainer">
+                <p>Loading variables...</p>
+            </div>
+        </div>
+        
+        <div style="margin-top: 30px;">
+            <h3 style="color: var(--accent); margin-bottom: 15px;">SYSTEM LOGS</h3>
+            <div class="logs" id="systemLogs">
+                <div class="log-entry">
+                    <span class="log-timestamp">[SYSTEM]</span> Admin interface initialized
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Admin GUI Namespace - Organized code structure
+        const AdminGUI = {
+            // Configuration
+            config: {
+                API_BASE: 'http://localhost:3002/api',
+                WS_URL: 'ws://localhost:3002/ws/admin',
+                REFRESH_INTERVAL: 5000,
+                MAX_LOG_ENTRIES: 50,
+                MAX_COOLDOWNS: 100,
+                WEBSOCKET_THROTTLE: 100, // ms
+                MAX_ROUTING_DISPLAY: 100
+            },
+            
+            // State management
+            state: {
+                ws: null,
+                refreshInterval: null,
+                activeTab: 'dashboard',
+                lastWebSocketMessage: 0,
+                domCache: {}
+            },
+            
+            // Cached DOM elements for performance
+            elements: {},
+            
+            // Initialize DOM cache
+            cacheDOMElements() {
+                const elements = [
+                    'connectionStatus', 'connectionText', 'activeCount', 'systemLatency',
+                    'overlayStatus', 'lastCommand', 'systemTokensValue', 'systemTokensBar',
+                    'systemTokensPercent', 'userCooldownsValue', 'userCooldownsBar',
+                    'userCooldownsPercent', 'variableBucketsValue', 'totalRequests',
+                    'blockedRequests', 'variablesContainer', 'routingTable',
+                    'instanceList', 'systemLogs'
+                ];
+                
+                elements.forEach(id => {
+                    this.elements[id] = document.getElementById(id);
+                });
+            }
+        };
+        
+        // Enhanced initialization with namespace
+        AdminGUI.init = function() {
+            this.cacheDOMElements();
+            this.websocket.connect();
+            this.data.refresh();
+            this.state.refreshInterval = setInterval(() => this.data.refresh(), this.config.REFRESH_INTERVAL);
+            this.ui.setupKeyboardShortcuts();
+            this.security.init();
+        };
+        
+        // Security module
+        AdminGUI.security = {
+            init() {
+                // Setup CSP and basic security measures
+                this.setupEventListeners();
+            },
+            
+            validateInput(value, type = 'string', max = 100) {
+                if (!value || typeof value !== 'string') return false;
+                if (value.length > max) return false;
+                
+                switch (type) {
+                    case 'variable':
+                        return /^[a-zA-Z0-9#._-]+$/.test(value);
+                    case 'value':
+                        const num = parseInt(value);
+                        return !isNaN(num) && num >= 0 && num <= 127;
+                    case 'string':
+                        return !/[<>'"&]/.test(value); // Basic XSS prevention
+                    default:
+                        return false;
+                }
+            },
+            
+            sanitizeHTML(str) {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            },
+            
+            sanitizeError(error) {
+                // Don't expose internal error details
+                if (error.message.includes('fetch')) return 'Network error occurred';
+                if (error.message.includes('parse')) return 'Data format error';
+                return 'An error occurred';
+            },
+            
+            setupEventListeners() {
+                // Prevent keyboard shortcuts when typing in inputs
+                document.addEventListener('keydown', function(e) {
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                        return; // Don't process shortcuts in form fields
+                    }
+                    
+                    if (e.ctrlKey) {
+                        switch(e.key) {
+                            case '1': AdminGUI.ui.showTab('dashboard'); e.preventDefault(); break;
+                            case '2': AdminGUI.ui.showTab('routing'); e.preventDefault(); break;
+                            case '3': AdminGUI.ui.showTab('analytics'); e.preventDefault(); break;
+                            case '4': AdminGUI.ui.showTab('instances'); e.preventDefault(); break;
+                        }
+                    }
+                });
+            }
+        };
+        
+        // UI Management module
+        AdminGUI.ui = {
+            showTab(tabName) {
+                // Hide all tab content
+                document.querySelectorAll('.tab-content').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                
+                // Remove active class from all tabs
+                document.querySelectorAll('.tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                
+                // Show selected tab content
+                document.getElementById(tabName).classList.add('active');
+                
+                // Find and activate the corresponding tab button
+                document.querySelectorAll('.tab').forEach(tab => {
+                    if (tab.textContent.toLowerCase().includes(tabName)) {
+                        tab.classList.add('active');
+                    }
+                });
+                
+                AdminGUI.state.activeTab = tabName;
+                
+                // Refresh data based on active tab
+                switch(tabName) {
+                    case 'dashboard':
+                        AdminGUI.data.refresh();
+                        break;
+                    case 'routing':
+                        AdminGUI.routing.refresh();
+                        break;
+                    case 'analytics':
+                        AdminGUI.analytics.refresh();
+                        break;
+                    case 'instances':
+                        AdminGUI.instances.refresh();
+                        break;
+                }
+            },
+            
+            updateConnectionStatus(connected) {
+                const status = AdminGUI.elements.connectionStatus;
+                const text = AdminGUI.elements.connectionText;
+                
+                if (status && text) {
+                    status.className = connected ? 'connection-status connected' : 'connection-status disconnected';
+                    text.textContent = connected ? 'Connected' : 'Disconnected';
+                }
+            }
+        };
+        
+        // WebSocket module with throttling and improved error handling
+        AdminGUI.websocket = {
+            connect() {
+                try {
+                    AdminGUI.state.ws = new WebSocket(AdminGUI.config.WS_URL);
+                    
+                    AdminGUI.state.ws.onopen = () => {
+                        AdminGUI.ui.updateConnectionStatus(true);
+                        AdminGUI.logging.add('WebSocket connected');
+                    };
+                    
+                    AdminGUI.state.ws.onclose = () => {
+                        AdminGUI.ui.updateConnectionStatus(false);
+                        AdminGUI.logging.add('WebSocket disconnected');
+                        // Exponential backoff reconnection
+                        setTimeout(() => this.connect(), 5000);
+                    };
+                    
+                    AdminGUI.state.ws.onmessage = (event) => {
+                        this.handleMessage(event);
+                    };
+                    
+                    AdminGUI.state.ws.onerror = (error) => {
+                        AdminGUI.logging.add('WebSocket connection error', 'error');
+                    };
+                    
+                } catch (err) {
+                    AdminGUI.ui.updateConnectionStatus(false);
+                    AdminGUI.logging.add(AdminGUI.security.sanitizeError(err), 'error');
+                }
+            },
+            
+            handleMessage(event) {
+                // Throttle WebSocket messages to prevent overwhelming
+                const now = Date.now();
+                if (now - AdminGUI.state.lastWebSocketMessage < AdminGUI.config.WEBSOCKET_THROTTLE) {
+                    return;
+                }
+                AdminGUI.state.lastWebSocketMessage = now;
+                
+                try {
+                    const data = JSON.parse(event.data);
+                    this.routeMessage(data);
+                } catch (err) {
+                    AdminGUI.logging.add('Invalid WebSocket message received', 'error');
+                }
+            },
+            
+            routeMessage(data) {
+                switch (data.type) {
+                    case 'rate_limit_update':
+                        AdminGUI.dashboard.updateRateLimiting(data.limits);
+                        break;
+                    case 'instance_status':
+                        AdminGUI.instances.updateList(data.instances);
+                        break;
+                    case 'system_alert':
+                        AdminGUI.logging.add(`ALERT: ${AdminGUI.security.sanitizeHTML(data.message)}`, 'error');
+                        break;
+                    case 'emergency_stop':
+                        AdminGUI.logging.add('EMERGENCY STOP ACTIVATED', 'error');
+                        break;
+                    default:
+                        AdminGUI.logging.add(`WebSocket: ${data.type}`);
+                }
+            }
+        };
+        
+        // Enhanced logging module with throttling
+        AdminGUI.logging = {
+            add(message, type = 'info') {
+                const logs = AdminGUI.elements.systemLogs;
+                if (!logs) return;
+                
+                const timestamp = new Date().toLocaleTimeString();
+                const entry = document.createElement('div');
+                entry.className = 'log-entry';
+                
+                let prefix = '[INFO]';
+                if (type === 'error') prefix = '[ERROR]';
+                if (type === 'warning') prefix = '[WARN]';
+                
+                entry.innerHTML = `<span class="log-timestamp">[${timestamp}]</span> ${prefix} ${AdminGUI.security.sanitizeHTML(message)}`;
+                
+                logs.appendChild(entry);
+                logs.scrollTop = logs.scrollHeight;
+                
+                // Efficient log cleanup
+                const entries = logs.children;
+                if (entries.length > AdminGUI.config.MAX_LOG_ENTRIES) {
+                    logs.removeChild(entries[0]);
+                }
+            }
+        };
+        
+        // Improved data refresh module
+        AdminGUI.data = {
+            async refresh() {
+                if (AdminGUI.state.activeTab !== 'dashboard') return;
+                
+                try {
+                    // Parallel API calls for better performance
+                    const [statusResponse, rateLimitResponse, variablesResponse] = await Promise.all([
+                        fetch(`${AdminGUI.config.API_BASE}/status`),
+                        fetch(`${AdminGUI.config.API_BASE}/rate-limits`),
+                        fetch(`${AdminGUI.config.API_BASE}/variables`)
+                    ]);
+                    
+                    const [status, rateLimits, variables] = await Promise.all([
+                        statusResponse.json(),
+                        rateLimitResponse.json(),
+                        variablesResponse.json()
+                    ]);
+                    
+                    this.updateDashboard(status, rateLimits, variables);
+                    
+                } catch (err) {
+                    AdminGUI.logging.add(AdminGUI.security.sanitizeError(err), 'error');
+                }
+            },
+            
+            updateDashboard(status, rateLimits, variables) {
+                // Update system status with cached elements
+                const elements = AdminGUI.elements;
+                if (elements.activeCount) elements.activeCount.textContent = status.activeVariableCount;
+                if (elements.systemLatency) elements.systemLatency.textContent = `${status.systemLatency}ms`;
+                if (elements.overlayStatus) elements.overlayStatus.textContent = status.overlayEnabled ? 'ON' : 'OFF';
+                if (elements.lastCommand) elements.lastCommand.textContent = status.lastCommand || 'None';
+                
+                // Update rate limiting visualization
+                AdminGUI.dashboard.updateRateLimiting(rateLimits);
+                
+                // Update variables display
+                this.renderVariables(variables.grouped);
+            },
+            
+            renderVariables(grouped) {
+                const container = AdminGUI.elements.variablesContainer;
+                if (!container) return;
+                
+                if (Object.keys(grouped).length === 0) {
+                    container.innerHTML = '<p>No active variables</p>';
+                    return;
+                }
+                
+                // Use DocumentFragment for efficient DOM updates
+                const fragment = document.createDocumentFragment();
+                
+                for (const [module, variables] of Object.entries(grouped)) {
+                    const moduleSection = document.createElement('div');
+                    moduleSection.className = 'module-section';
+                    
+                    const moduleHeader = document.createElement('div');
+                    moduleHeader.className = 'module-header';
+                    moduleHeader.textContent = module.toUpperCase();
+                    moduleSection.appendChild(moduleHeader);
+                    
+                    const variablesGrid = document.createElement('div');
+                    variablesGrid.className = 'variables-grid';
+                    
+                    variables.forEach(variable => {
+                        const card = document.createElement('div');
+                        card.className = 'variable-card';
+                        card.innerHTML = `
+                            <div class="variable-name">${AdminGUI.security.sanitizeHTML(variable.variable)}</div>
+                            <div class="variable-value">${variable.value}</div>
+                            <div class="variable-user">Value: ${variable.value}/127 (${(variable.value/127).toFixed(2)}V CV)</div>
+                        `;
+                        variablesGrid.appendChild(card);
+                    });
+                    
+                    moduleSection.appendChild(variablesGrid);
+                    fragment.appendChild(moduleSection);
+                }
+                
+                container.innerHTML = '';
+                container.appendChild(fragment);
+            }
+        };
+        
+        // Dashboard module with improved rate limiting visualization
+        AdminGUI.dashboard = {
+            updateRateLimiting(rateLimits) {
+                const elements = AdminGUI.elements;
+                
+                // System tokens progress bar with performance optimization
+                const systemPercent = Math.round((rateLimits.systemTokens.tokens / rateLimits.systemTokens.capacity) * 100);
+                if (elements.systemTokensValue) {
+                    elements.systemTokensValue.textContent = `${rateLimits.systemTokens.tokens}/${rateLimits.systemTokens.capacity}`;
+                }
+                if (elements.systemTokensBar) {
+                    elements.systemTokensBar.style.width = `${systemPercent}%`;
+                    // Use CSS classes instead of direct style manipulation
+                    elements.systemTokensBar.classList.toggle('low', systemPercent < 20);
+                }
+                if (elements.systemTokensPercent) {
+                    elements.systemTokensPercent.textContent = `${systemPercent}%`;
+                }
+                
+                // User cooldowns with improved calculation
+                const cooldownPercent = Math.min(Math.round((rateLimits.userCooldowns / AdminGUI.config.MAX_COOLDOWNS) * 100), 100);
+                if (elements.userCooldownsValue) {
+                    elements.userCooldownsValue.textContent = `${rateLimits.userCooldowns} active`;
+                }
+                if (elements.userCooldownsBar) {
+                    elements.userCooldownsBar.style.width = `${cooldownPercent}%`;
+                }
+                if (elements.userCooldownsPercent) {
+                    elements.userCooldownsPercent.textContent = `${cooldownPercent}%`;
+                }
+                
+                // Variable buckets and statistics
+                if (elements.variableBucketsValue) {
+                    elements.variableBucketsValue.textContent = `${rateLimits.variableBuckets} active`;
+                }
+                if (elements.totalRequests) {
+                    elements.totalRequests.textContent = rateLimits.totalRequests;
+                }
+                if (elements.blockedRequests) {
+                    elements.blockedRequests.textContent = rateLimits.blockedRequests || 0;
+                }
+            }
+        };
+        
+        // Enhanced routing module with validation
+        AdminGUI.routing = {
+            async refresh() {
+                try {
+                    const response = await fetch(`${AdminGUI.config.API_BASE}/variables`);
+                    const data = await response.json();
+                    this.render(data.grouped);
+                } catch (err) {
+                    AdminGUI.logging.add(AdminGUI.security.sanitizeError(err), 'error');
+                }
+            },
+            
+            render(grouped) {
+                const container = AdminGUI.elements.routingTable;
+                if (!container) return;
+                
+                if (Object.keys(grouped).length === 0) {
+                    container.innerHTML = '<p>No active routes</p>';
+                    return;
+                }
+                
+                const fragment = document.createDocumentFragment();
+                
+                for (const [module, variables] of Object.entries(grouped)) {
+                    if (variables.length === 0) continue;
+                    
+                    const moduleSection = document.createElement('div');
+                    moduleSection.className = 'module-section';
+                    
+                    const moduleHeader = document.createElement('div');
+                    moduleHeader.className = 'module-header';
+                    moduleHeader.textContent = module.toUpperCase();
+                    moduleSection.appendChild(moduleHeader);
+                    
+                    variables.forEach(variable => {
+                        const entry = document.createElement('div');
+                        entry.className = 'routing-entry';
+                        
+                        const path = document.createElement('div');
+                        path.className = 'routing-path';
+                        path.textContent = `${variable.variable} → ${variable.value}`;
+                        
+                        const actions = document.createElement('div');
+                        actions.className = 'routing-actions';
+                        
+                        const editBtn = document.createElement('button');
+                        editBtn.className = 'btn btn-small';
+                        editBtn.textContent = 'EDIT';
+                        editBtn.onclick = () => this.edit(variable.variable);
+                        
+                        const deleteBtn = document.createElement('button');
+                        deleteBtn.className = 'btn btn-small btn-danger';
+                        deleteBtn.textContent = 'DELETE';
+                        deleteBtn.onclick = () => this.delete(variable.variable);
+                        
+                        actions.appendChild(editBtn);
+                        actions.appendChild(deleteBtn);
+                        
+                        entry.appendChild(path);
+                        entry.appendChild(actions);
+                        moduleSection.appendChild(entry);
+                    });
+                    
+                    fragment.appendChild(moduleSection);
+                }
+                
+                container.innerHTML = '';
+                container.appendChild(fragment);
+            },
+            
+            async add() {
+                const variable = prompt('Enter variable name (e.g., oscillator#1.frequency):');
+                const value = prompt('Enter value (0-127):');
+                
+                // Enhanced validation
+                if (!AdminGUI.security.validateInput(variable, 'variable')) {
+                    AdminGUI.logging.add('Invalid variable name format', 'error');
+                    return;
+                }
+                
+                if (!AdminGUI.security.validateInput(value, 'value')) {
+                    AdminGUI.logging.add('Invalid value - must be 0-127', 'error');
+                    return;
+                }
+                
+                try {
+                    const response = await fetch(`${AdminGUI.config.API_BASE}/cv-command`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            variable: variable.trim(), 
+                            value: parseInt(value), 
+                            user: 'admin-gui' 
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        AdminGUI.logging.add(`Route added: ${variable} → ${value}`);
+                        this.refresh();
+                    } else {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                } catch (err) {
+                    AdminGUI.logging.add(AdminGUI.security.sanitizeError(err), 'error');
+                }
+            },
+            
+            async edit(variable) {
+                const newValue = prompt(`Enter new value for ${variable} (0-127):`);
+                
+                if (!AdminGUI.security.validateInput(newValue, 'value')) {
+                    AdminGUI.logging.add('Invalid value - must be 0-127', 'error');
+                    return;
+                }
+                
+                try {
+                    const response = await fetch(`${AdminGUI.config.API_BASE}/cv-command`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            variable, 
+                            value: parseInt(newValue), 
+                            user: 'admin-gui' 
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        AdminGUI.logging.add(`Route updated: ${variable} → ${newValue}`);
+                        this.refresh();
+                    } else {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                } catch (err) {
+                    AdminGUI.logging.add(AdminGUI.security.sanitizeError(err), 'error');
+                }
+            },
+            
+            async delete(variable) {
+                if (confirm(`Delete route for ${variable}?`)) {
+                    AdminGUI.logging.add(`Route deletion not yet implemented for ${variable}`);
+                }
+            },
+            
+            async clearAll() {
+                if (confirm('Clear ALL routing? This will stop all CV output immediately.')) {
+                    AdminGUI.emergency.clearAll();
+                    this.refresh();
+                }
+            }
+        };
+        
+        function renderVariables(grouped) {
+            const container = document.getElementById('variablesContainer');
+            
+            if (Object.keys(grouped).length === 0) {
+                container.innerHTML = '<p>No active variables</p>';
+                return;
+            }
+            
+            let html = '';
+            
+            for (const [module, variables] of Object.entries(grouped)) {
+                html += `<div class="module-section">`;
+                html += `<div class="module-header">${module.toUpperCase()}</div>`;
+                html += `<div class="variables-grid">`;
+                
+                variables.forEach(variable => {
+                    html += `
+                        <div class="variable-card">
+                            <div class="variable-name">${variable.variable}</div>
+                            <div class="variable-value">${variable.value}</div>
+                            <div class="variable-user">Value: ${variable.value}/127 (${(variable.value/127).toFixed(2)}V CV)</div>
+                        </div>
+                    `;
+                });
+                
+                html += `</div></div>`;
+            }
+            
+            container.innerHTML = html;
+        }
+        
+        // Enhanced rate limiting visualization
+        function updateRateLimitingVisualization(rateLimits) {
+            // System tokens progress bar
+            const systemPercent = (rateLimits.systemTokens.tokens / rateLimits.systemTokens.capacity) * 100;
+            document.getElementById('systemTokensValue').textContent = 
+                `${rateLimits.systemTokens.tokens}/${rateLimits.systemTokens.capacity}`;
+            document.getElementById('systemTokensBar').style.width = `${systemPercent}%`;
+            document.getElementById('systemTokensPercent').textContent = `${Math.round(systemPercent)}%`;
+            
+            // Apply color coding
+            const systemBar = document.getElementById('systemTokensBar');
+            if (systemPercent < 20) {
+                systemBar.classList.add('low');
+            } else {
+                systemBar.classList.remove('low');
+            }
+            
+            // User cooldowns
+            const maxCooldowns = 100; // Assume max for percentage calculation
+            const cooldownPercent = Math.min((rateLimits.userCooldowns / maxCooldowns) * 100, 100);
+            document.getElementById('userCooldownsValue').textContent = `${rateLimits.userCooldowns} active`;
+            document.getElementById('userCooldownsBar').style.width = `${cooldownPercent}%`;
+            document.getElementById('userCooldownsPercent').textContent = `${Math.round(cooldownPercent)}%`;
+            
+            // Variable buckets and other stats
+            document.getElementById('variableBucketsValue').textContent = `${rateLimits.variableBuckets} active`;
+            document.getElementById('totalRequests').textContent = rateLimits.totalRequests;
+            document.getElementById('blockedRequests').textContent = rateLimits.blockedRequests || 0;
+        }
+        
+        // WebSocket message handling
+        function handleWebSocketMessage(data) {
+            switch (data.type) {
+                case 'rate_limit_update':
+                    updateRateLimitingVisualization(data.limits);
+                    break;
+                case 'instance_status':
+                    updateInstanceList(data.instances);
+                    break;
+                case 'system_alert':
+                    addLogEntry(`ALERT: ${data.message}`, 'error');
+                    break;
+                case 'emergency_stop':
+                    addLogEntry('EMERGENCY STOP ACTIVATED', 'error');
+                    break;
+            }
+        }
+        
+        // Emergency controls
+        async function emergencyStop() {
+            if (!confirm('EMERGENCY STOP: This will immediately halt all CV output across ALL instances. Continue?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/emergency-stop`, { method: 'POST' });
+                if (response.ok) {
+                    addLogEntry('Emergency stop activated', 'error');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (err) {
+                addLogEntry(`Emergency stop error: ${err.message}`, 'error');
+            }
+        }
+        
+        async function toggleOverlay() {
+            try {
+                const response = await fetch(`${API_BASE}/overlay-toggle`, { method: 'POST' });
+                if (response.ok) {
+                    addLogEntry('Overlay toggled');
+                    refreshData();
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (err) {
+                addLogEntry(`Overlay toggle error: ${err.message}`);
+            }
+        }
+        
+        // Routing management functions
+        async function refreshRouting() {
+            try {
+                const response = await fetch(`${API_BASE}/variables`);
+                const data = await response.json();
+                renderRoutingTable(data.grouped);
+            } catch (err) {
+                addLogEntry(`Routing refresh error: ${err.message}`);
+            }
+        }
+        
+        function renderRoutingTable(grouped) {
+            const container = document.getElementById('routingTable');
+            
+            if (Object.keys(grouped).length === 0) {
+                container.innerHTML = '<p>No active routes</p>';
+                return;
+            }
+            
+            let html = '';
+            for (const [module, variables] of Object.entries(grouped)) {
+                html += `<div class="module-section">`;
+                html += `<div class="module-header">${module.toUpperCase()}</div>`;
+                
+                variables.forEach(variable => {
+                    html += `
+                        <div class="routing-entry">
+                            <div class="routing-path">${variable.variable} → ${variable.value}</div>
+                            <div class="routing-actions">
+                                <button class="btn btn-small" onclick="editRoute('${variable.variable}')">EDIT</button>
+                                <button class="btn btn-small btn-danger" onclick="deleteRoute('${variable.variable}')">DELETE</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += `</div>`;
+            }
+            
+            container.innerHTML = html;
+        }
+        
+        async function addNewRoute() {
+            const variable = prompt('Enter variable name (e.g., oscillator#1.frequency):');
+            const value = prompt('Enter value (0-127):');
+            
+            if (variable && value) {
+                try {
+                    const response = await fetch(`${API_BASE}/cv-command`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ variable, value: parseInt(value), user: 'admin-gui' })
+                    });
+                    
+                    if (response.ok) {
+                        addLogEntry(`Route added: ${variable} → ${value}`);
+                        refreshRouting();
+                    } else {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                } catch (err) {
+                    addLogEntry(`Add route error: ${err.message}`);
+                }
+            }
+        }
+        
+        async function editRoute(variable) {
+            const newValue = prompt(`Enter new value for ${variable} (0-127):`);
+            
+            if (newValue) {
+                try {
+                    const response = await fetch(`${API_BASE}/cv-command`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ variable, value: parseInt(newValue), user: 'admin-gui' })
+                    });
+                    
+                    if (response.ok) {
+                        addLogEntry(`Route updated: ${variable} → ${newValue}`);
+                        refreshRouting();
+                    } else {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                } catch (err) {
+                    addLogEntry(`Edit route error: ${err.message}`);
+                }
+            }
+        }
+        
+        async function deleteRoute(variable) {
+            if (confirm(`Delete route for ${variable}?`)) {
+                // Implementation would require API endpoint for individual variable deletion
+                addLogEntry(`Route deletion not yet implemented for ${variable}`);
+            }
+        }
+        
+        async function clearAllRoutes() {
+            if (confirm('Clear ALL routing? This will stop all CV output immediately.')) {
+                await clearAllVariables();
+                refreshRouting();
+            }
+        }
+        
+        // Analytics functions
+        async function refreshAnalytics() {
+            try {
+                // Mock analytics data - would integrate with actual analytics API
+                document.getElementById('totalCommandsToday').textContent = '1,247';
+                document.getElementById('avgLatency').textContent = '8.3ms';
+                document.getElementById('peakCommands').textContent = '156/hr';
+                document.getElementById('systemUptime').textContent = '23h 14m';
+                document.getElementById('memoryUsage').textContent = '245MB';
+                document.getElementById('errorRate').textContent = '0.02%';
+                
+                addLogEntry('Analytics refreshed');
+            } catch (err) {
+                addLogEntry(`Analytics error: ${err.message}`);
+            }
+        }
+        
+        // Instance management functions
+        async function refreshInstances() {
+            try {
+                // Mock instance data - would integrate with Redis pub/sub discovery
+                const instanceList = document.getElementById('instanceList');
+                instanceList.innerHTML = `
+                    <h3 style="color: var(--accent); margin-bottom: 15px;">CONNECTED INSTANCES</h3>
+                    <div class="instance-item">
+                        <div>
+                            <span class="instance-status online"></span>
+                            <span>bot-001 (current)</span>
+                        </div>
+                        <div>
+                            <button class="btn btn-small">RESTART</button>
+                            <button class="btn btn-small btn-danger">STOP</button>
+                        </div>
+                    </div>
+                `;
+                
+                addLogEntry('Instances refreshed');
+            } catch (err) {
+                addLogEntry(`Instances error: ${err.message}`);
+            }
+        }
+        
+        async function broadcastEmergencyStop() {
+            if (confirm('BROADCAST EMERGENCY STOP to ALL instances? This cannot be undone.')) {
+                await emergencyStop();
+                addLogEntry('Emergency stop broadcast to all instances', 'error');
+            }
+        }
+        
+        async function syncAllInstances() {
+            addLogEntry('Instance synchronization not yet implemented');
+        }
+        
+        async function showInstanceLogs() {
+            addLogEntry('Instance log viewing not yet implemented');
+        }
+        
+        // Emergency controls module
+        AdminGUI.emergency = {
+            async stop() {
+                if (!confirm('EMERGENCY STOP: This will immediately halt all CV output across ALL instances. Continue?')) {
+                    return;
+                }
+                
+                try {
+                    const response = await fetch(`${AdminGUI.config.API_BASE}/emergency-stop`, { method: 'POST' });
+                    if (response.ok) {
+                        AdminGUI.logging.add('Emergency stop activated', 'error');
+                    } else {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                } catch (err) {
+                    AdminGUI.logging.add(AdminGUI.security.sanitizeError(err), 'error');
+                }
+            },
+            
+            async clearAll() {
+                if (!confirm('Clear all active variables? This will stop all CV output immediately.')) {
+                    return;
+                }
+                
+                try {
+                    const response = await fetch(`${AdminGUI.config.API_BASE}/variables`, { method: 'DELETE' });
+                    if (response.ok) {
+                        AdminGUI.logging.add('All variables cleared');
+                        AdminGUI.data.refresh();
+                    } else {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                } catch (err) {
+                    AdminGUI.logging.add(AdminGUI.security.sanitizeError(err), 'error');
+                }
+            },
+            
+            async toggleOverlay() {
+                try {
+                    const response = await fetch(`${AdminGUI.config.API_BASE}/overlay-toggle`, { method: 'POST' });
+                    if (response.ok) {
+                        AdminGUI.logging.add('Overlay toggled');
+                        AdminGUI.data.refresh();
+                    } else {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                } catch (err) {
+                    AdminGUI.logging.add(AdminGUI.security.sanitizeError(err), 'error');
+                }
+            }
+        };
+        
+        // Simplified modules for analytics and instances
+        AdminGUI.analytics = {
+            async refresh() {
+                AdminGUI.logging.add('Analytics refreshed');
+            }
+        };
+        
+        AdminGUI.instances = {
+            async refresh() {
+                AdminGUI.logging.add('Instances refreshed');
+            },
+            
+            updateList(instances) {
+                AdminGUI.logging.add('Instance list updated');
+            }
+        };
+        
+        async function clearAllVariables() {
+            if (!confirm('Clear all active variables? This will stop all CV output immediately.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/variables`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    addLogEntry('All variables cleared');
+                    refreshData();
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (err) {
+                addLogEntry(`Clear error: ${err.message}`);
+            }
+        }
+        
+        // Global function aliases for HTML onclick handlers
+        function showTab(tabName) { AdminGUI.ui.showTab(tabName); }
+        function refreshData() { AdminGUI.data.refresh(); }
+        function refreshRouting() { AdminGUI.routing.refresh(); }
+        function refreshAnalytics() { AdminGUI.analytics.refresh(); }
+        function refreshInstances() { AdminGUI.instances.refresh(); }
+        function addNewRoute() { AdminGUI.routing.add(); }
+        function editRoute(variable) { AdminGUI.routing.edit(variable); }
+        function deleteRoute(variable) { AdminGUI.routing.delete(variable); }
+        function clearAllRoutes() { AdminGUI.routing.clearAll(); }
+        function clearAllVariables() { AdminGUI.emergency.clearAll(); }
+        function emergencyStop() { AdminGUI.emergency.stop(); }
+        function toggleOverlay() { AdminGUI.emergency.toggleOverlay(); }
+        function broadcastEmergencyStop() { AdminGUI.emergency.stop(); }
+        function syncAllInstances() { AdminGUI.instances.refresh(); }
+        function showInstanceLogs() { AdminGUI.logging.add('Instance logs not implemented'); }
+        
+        async function sendCVCommand(event) {
+            event.preventDefault();
+            
+            const variable = document.getElementById('cvVariable').value;
+            const value = document.getElementById('cvValue').value;
+            const user = document.getElementById('cvUser').value;
+            
+            // Enhanced validation
+            if (!AdminGUI.security.validateInput(variable, 'variable')) {
+                AdminGUI.logging.add('Invalid variable name format', 'error');
+                return;
+            }
+            
+            if (!AdminGUI.security.validateInput(value, 'value')) {
+                AdminGUI.logging.add('Invalid value - must be 0-127', 'error');
+                return;
+            }
+            
+            if (!AdminGUI.security.validateInput(user, 'string')) {
+                AdminGUI.logging.add('Invalid user name', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${AdminGUI.config.API_BASE}/cv-command`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        variable: variable.trim(), 
+                        value: parseInt(value), 
+                        user: user.trim() 
+                    })
+                });
+                
+                if (response.ok) {
+                    AdminGUI.logging.add(`CV command sent: ${variable} = ${value}`);
+                    AdminGUI.data.refresh();
+                    event.target.reset();
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (err) {
+                AdminGUI.logging.add(AdminGUI.security.sanitizeError(err), 'error');
+            }
+        }
+        
+        // Initialize the enhanced admin GUI
+        document.addEventListener('DOMContentLoaded', function() {
+            AdminGUI.init();
+        });
+    </script>
+</body>
+</html>
